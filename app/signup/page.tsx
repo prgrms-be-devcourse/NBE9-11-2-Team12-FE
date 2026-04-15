@@ -29,7 +29,7 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<Partial<Record<keyof SignupForm, string>>>({})
+  const [errors, setErrors] = useState<Partial<Record<keyof SignupForm | "general", string>>>({})
   
   const [form, setForm] = useState<SignupForm>({
     email: "",
@@ -115,25 +115,43 @@ export default function SignupPage() {
     if (!validateForm()) return
 
     setIsLoading(true)
+    setErrors({})
 
-    // API 호출 시뮬레이션 (나중에 실제 API로 교체)
-    const signupData = {
-      email: form.email,
-      password: form.password,
-      name: form.name,
-      phoneNumber: form.phoneNumber,
-      gender: form.gender,
-      birth: form.birth,
-      role: form.role,
-    }
+    try {
+      const response = await fetch("http://localhost:8080/api/v1/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email: form.email,
+          password: form.password,
+          name: form.name,
+          phoneNumber: form.phoneNumber,
+          gender: form.gender,
+          birth: form.birth,
+        }),
+      })
 
-    console.log("회원가입 데이터:", signupData)
+      const data = await response.json()
 
-    // 임시 딜레이 후 로그인 페이지로 이동
-    setTimeout(() => {
-      setIsLoading(false)
+      if (!response.ok || data.code !== "SUCCESS") {
+        setErrors({
+          general: data.message || "회원가입에 실패했습니다. 다시 시도해주세요.",
+        })
+        return
+      }
+
+      // 회원가입 성공 시 로그인 페이지로 이동
       router.push("/login?registered=true")
-    }, 1000)
+    } catch (error) {
+      console.error("회원가입 에러:", error)
+      setErrors({
+        general: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+      })
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -165,6 +183,13 @@ export default function SignupPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+              {/* 일반 에러 메시지 */}
+              {errors.general && (
+                <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
+                  <p className="text-sm text-destructive">{errors.general}</p>
+                </div>
+              )}
+
               {/* 이메일 */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="email">이메일</Label>
