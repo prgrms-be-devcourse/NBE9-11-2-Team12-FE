@@ -28,7 +28,6 @@ import {
   fetchMarathonDetail,
 } from "@/lib/marathon-detail"
 import {
-  formatCourseDistance,
   formatRegion,
   marathonStatusToUi,
 } from "@/lib/marathon-labels"
@@ -56,10 +55,7 @@ function formatDateTime(iso: string): string {
   }).format(d)
 }
 
-const statusBadgeClass: Record<
-  ReturnType<typeof marathonStatusToUi>,
-  string
-> = {
+const statusBadgeClass: Record<ReturnType<typeof marathonStatusToUi>, string> = {
   접수중: "bg-primary text-primary-foreground",
   접수예정: "bg-accent text-accent-foreground",
   접수마감: "bg-muted text-muted-foreground",
@@ -155,9 +151,7 @@ export default function MarathonDetailPage() {
                   ) : (
                     <div className="flex h-full min-h-[200px] items-center justify-center bg-primary/10">
                       <span className="text-4xl font-bold text-primary/30">
-                        {detail.courses[0]?.distance
-                          ? formatCourseDistance(detail.courses[0].distance)
-                          : "MARATHON"}
+                        {detail.courses[0]?.courseType ?? "MARATHON"}
                       </span>
                     </div>
                   )}
@@ -211,48 +205,49 @@ export default function MarathonDetailPage() {
                       {detail.courses.map((course, idx) => (
                         <li
                           key={course.id ?? idx}
-                          className="flex flex-col gap-2 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
+                          className="flex flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between"
                         >
-                          <div className="font-medium text-foreground">
-                            {course.distance
-                              ? formatCourseDistance(course.distance)
-                              : "코스"}
-                          </div>
-                          <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
-                            {course.price != null && (
-                              <span>
-                                참가비{" "}
-                                <span className="font-medium text-foreground">
-                                  {course.price.toLocaleString("ko-KR")}원
+                          <div className="flex flex-col gap-1">
+                            <div className="font-medium text-foreground">
+                              {course.courseType || "코스"}
+                            </div>
+                            <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
+                              {course.price != null && (
+                                <span>
+                                  참가비{" "}
+                                  <span className="font-medium text-foreground">
+                                    {course.price.toLocaleString("ko-KR")}원
+                                  </span>
                                 </span>
-                              </span>
-                            )}
-                            {course.maxParticipants != null && (
-                              <span>
-                                정원{" "}
-                                <span className="font-medium text-foreground">
-                                  {course.maxParticipants.toLocaleString(
-                                    "ko-KR"
-                                  )}
-                                  명
+                              )}
+                              {course.capacity != null && (
+                                <span>
+                                  정원{" "}
+                                  <span className="font-medium text-foreground">
+                                    {course.capacity.toLocaleString("ko-KR")}명
+                                  </span>
                                 </span>
-                              </span>
-                            )}
+                              )}
+                            </div>
                           </div>
+                          {uiStatus === "접수중" && course.id && (
+                            <Button
+                              size="sm"
+                              onClick={() =>
+                                router.push(
+                                  `/marathons/${id}/courses/${course.id}/register`
+                                )
+                              }
+                            >
+                              접수하기
+                            </Button>
+                          )}
                         </li>
                       ))}
                     </ul>
                   )}
                 </CardContent>
               </Card>
-
-              {uiStatus === "접수중" && (
-                <div className="flex justify-center">
-                  <Button size="lg" className="min-w-[200px]">
-                    접수하기
-                  </Button>
-                </div>
-              )}
             </div>
           )}
         </div>
