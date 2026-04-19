@@ -10,9 +10,9 @@ import { Search } from "lucide-react"
 const sampleMarathons: MarathonData[] = [
   {
     id: "1",
-    title: "2026 서울국제마라톤",
-    date: "2026년 5월 15일",
-    location: "서울 광화문광장",
+    title: "2026 서울 벚꽃 마라톤",
+    date: "2026년 4월 30일",
+    location: "여의도",
     region: "서울",
     distance: ["풀코스", "하프", "10km"],
     participants: 15000,
