@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { API_BASE_URL } from "@/lib/api-base"
 import { Eye, EyeOff, ArrowLeft, CheckCircle } from "lucide-react"
 
 export default function LoginPage() {
@@ -53,7 +54,7 @@ export default function LoginPage() {
     setErrors({})
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -77,7 +78,7 @@ export default function LoginPage() {
 
       // 사용자 정보 저장 (토큰은 쿠키로 자동 저장됨)
       if (data.data) {
-        localStorage.setItem("user", JSON.stringify(data.data))
+        localStorage.setItem("user", JSON.stringify(data.data))                           
       }
 
       // 홈으로 이동
