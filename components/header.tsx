@@ -1,14 +1,39 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { User, LogOut, Menu, X } from "lucide-react"
 
+interface UserInfo {
+  id: number
+  email: string
+  name: string
+  role: string
+}
+
 export function Header() {
-  // 임시 로그인 상태 (나중에 실제 인증으로 교체)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const router = useRouter()
+  const [user, setUser] = useState<UserInfo | null>(null)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    // localStorage에서 사용자 정보 가져오기
+    const storedUser = localStorage.getItem("user")
+    if (storedUser) {
+      setUser(JSON.parse(storedUser))
+    }
+  }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("user")
+    setUser(null)
+    setIsMobileMenuOpen(false)
+    router.push("/")
+  }
+
+  const isLoggedIn = !!user
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -47,6 +72,9 @@ export function Header() {
         <div className="hidden items-center gap-3 md:flex">
           {isLoggedIn ? (
             <>
+              <span className="text-sm font-medium text-foreground">
+                {user?.name}님 환영합니다!
+              </span>
               <Button variant="ghost" size="sm" asChild>
                 <Link href="/mypage">
                   <User className="mr-2 h-4 w-4" />
@@ -56,7 +84,7 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setIsLoggedIn(false)}
+                onClick={handleLogout}
               >
                 <LogOut className="mr-2 h-4 w-4" />
                 로그아웃
@@ -115,6 +143,9 @@ export function Header() {
             <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
               {isLoggedIn ? (
                 <>
+                  <span className="text-sm font-medium text-foreground px-2 py-1">
+                    {user?.name}님 환영합니다!
+                  </span>
                   <Button variant="ghost" size="sm" asChild className="justify-start">
                     <Link href="/mypage" onClick={() => setIsMobileMenuOpen(false)}>
                       <User className="mr-2 h-4 w-4" />
@@ -124,10 +155,7 @@ export function Header() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => {
-                      setIsLoggedIn(false)
-                      setIsMobileMenuOpen(false)
-                    }}
+                    onClick={handleLogout}
                     className="justify-start"
                   >
                     <LogOut className="mr-2 h-4 w-4" />
