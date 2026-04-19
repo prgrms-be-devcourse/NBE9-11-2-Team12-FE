@@ -61,7 +61,7 @@ export function Header() {
             마라톤 일정
           </Link>
           <Link
-            href="/register"
+            href="/marathons/create"
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             대회 등록

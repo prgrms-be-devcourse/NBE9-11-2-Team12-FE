@@ -1,3 +1,4 @@
+import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -80,17 +81,21 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-4 pt-0">
-        <Button
-          className="w-full"
-          disabled={marathon.status === "접수마감"}
-          variant={marathon.status === "접수중" ? "default" : "secondary"}
-        >
-          {marathon.status === "접수중"
-            ? "접수하기"
-            : marathon.status === "접수예정"
-              ? "상세보기"
-              : "마감됨"}
-        </Button>
+        {marathon.status === "접수마감" ? (
+          <Button className="w-full" disabled variant="secondary">
+            마감됨
+          </Button>
+        ) : (
+          <Button
+            className="w-full"
+            variant={marathon.status === "접수중" ? "default" : "secondary"}
+            asChild
+          >
+            <Link href={`/marathons/${marathon.id}`}>
+              {marathon.status === "접수중" ? "접수하기" : "상세보기"}
+            </Link>
+          </Button>
+        )}
       </CardFooter>
     </Card>
   )

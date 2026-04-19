@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { API_BASE_URL } from "@/lib/api-base"
 import { Eye, EyeOff, ArrowLeft, Check } from "lucide-react"
 
 type Gender = "MALE" | "FEMALE"
@@ -118,7 +119,7 @@ export default function SignupPage() {
     setErrors({})
 
     try {
-      const response = await fetch("http://localhost:8080/api/v1/auth/signup", {
+      const response = await fetch(`${API_BASE_URL}/api/v1/auth/signup`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
