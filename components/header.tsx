@@ -1,5 +1,6 @@
 "use client"
 
+import { API_BASE_URL } from "@/lib/api-base"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -26,11 +27,20 @@ export function Header() {
     }
   }, [])
 
-  const handleLogout = () => {
-    localStorage.removeItem("user")
-    setUser(null)
-    setIsMobileMenuOpen(false)
-    router.push("/")
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+        method: "POST",
+        credentials: "include", // 쿠키 포함
+      })
+    } catch (e) {
+      console.error("로그아웃 요청 실패", e)
+    } finally {
+      localStorage.removeItem("user")
+      setUser(null)
+      setIsMobileMenuOpen(false)
+      router.push("/")
+    }
   }
 
   const isLoggedIn = !!user
