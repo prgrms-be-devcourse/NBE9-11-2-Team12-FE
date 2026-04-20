@@ -52,8 +52,8 @@ const REGIONS: { value: Region; label: string }[] = [
 ]
 
 const COURSE_DISTANCES = [
-  { value: "5KM", label: "5km" },
-  { value: "10KM", label: "10km" },
+  { value: "5K", label: "5km" },
+  { value: "10K", label: "10km" },
   { value: "HALF", label: "하프 (21.0975km)" },
   { value: "FULL", label: "풀코스 (42.195km)" },
 ]
@@ -160,51 +160,89 @@ export default function CreateMarathonPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
+
     e.preventDefault()
-
+  
     if (!validateForm()) return
-
+  
     setIsLoading(true)
+  
     setErrors({})
-
+  
     try {
+  
       const response = await fetch(`${API_BASE_URL}/api/v1/marathons`, {
+  
         method: "POST",
+  
         headers: {
+  
           "Content-Type": "application/json",
+  
         },
+  
         credentials: "include",
+  
         body: JSON.stringify({
+  
           title: form.title,
-          description: form.description,
+  
           region: form.region,
-          address: form.address,
-          marathonDate: form.marathonDate,
-          registrationStart: form.registrationStart,
-          registrationEnd: form.registrationEnd,
-          courses: form.courses,
+  
+          eventDate: form.marathonDate,
+  
+          posterImageUrl: null,
+  
+          registrationStartAt: `${form.registrationStart}T00:00:00`,
+  
+          registrationEndAt: `${form.registrationEnd}T23:59:59`,
+  
+          courses: form.courses.map((course) => ({
+  
+            courseType: course.distance,
+  
+            price: course.price,
+  
+            capacity: course.maxParticipants,
+  
+          })),
+  
         }),
+  
       })
-
+  
       const data = await response.json()
-
+  
       if (!response.ok || data.code !== "SUCCESS") {
+  
         setErrors({
+  
           general: data.message || "대회 등록에 실패했습니다. 다시 시도해주세요.",
+  
         })
+  
         return
+  
       }
-
-      // 성공 시 대회 목록 또는 상세 페이지로 이동
+  
       router.push("/marathons")
+  
     } catch (error) {
+  
       console.error("대회 등록 에러:", error)
+  
       setErrors({
+  
         general: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
+  
       })
+  
     } finally {
+  
       setIsLoading(false)
+  
     }
+  
   }
 
   return (
