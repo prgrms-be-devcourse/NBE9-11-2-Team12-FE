@@ -9,10 +9,9 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { API_BASE_URL } from "@/lib/api-base"
-import { Eye, EyeOff, ArrowLeft, Check } from "lucide-react"
+import { Eye, EyeOff, ArrowLeft } from "lucide-react"
 
 type Gender = "MALE" | "FEMALE"
-type Role = "PARTICIPANT" | "ORGANIZER"
 
 interface SignupForm {
   email: string
@@ -22,7 +21,6 @@ interface SignupForm {
   phoneNumber: string
   gender: Gender | ""
   birth: string
-  role: Role
 }
 
 export default function SignupPage() {
@@ -40,13 +38,11 @@ export default function SignupPage() {
     phoneNumber: "",
     gender: "",
     birth: "",
-    role: "PARTICIPANT",
   })
 
   const validateForm = (): boolean => {
     const newErrors: Partial<Record<keyof SignupForm, string>> = {}
 
-    // 이메일 검증
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (!form.email) {
       newErrors.email = "이메일을 입력해주세요"
@@ -54,7 +50,6 @@ export default function SignupPage() {
       newErrors.email = "올바른 이메일 형식이 아닙니다"
     }
 
-    // 비밀번호 검증
     const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[!@#$%^&*])[a-zA-Z\d!@#$%^&*]{8,}$/
     if (!form.password) {
       newErrors.password = "비밀번호를 입력해주세요"
@@ -62,21 +57,18 @@ export default function SignupPage() {
       newErrors.password = "영문, 숫자, 특수문자를 포함한 8자 이상이어야 합니다"
     }
 
-    // 비밀번호 확인
     if (!form.passwordConfirm) {
       newErrors.passwordConfirm = "비밀번호를 다시 입력해주세요"
     } else if (form.password !== form.passwordConfirm) {
       newErrors.passwordConfirm = "비밀번호가 일치하지 않습니다"
     }
 
-    // 이름 검증
     if (!form.name) {
       newErrors.name = "이름을 입력해주세요"
     } else if (form.name.length < 2) {
       newErrors.name = "이름은 2자 이상이어야 합니다"
     }
 
-    // 전화번호 검증
     const phoneRegex = /^01[0-9]-\d{3,4}-\d{4}$/
     if (!form.phoneNumber) {
       newErrors.phoneNumber = "전화번호를 입력해주세요"
@@ -84,12 +76,10 @@ export default function SignupPage() {
       newErrors.phoneNumber = "올바른 전화번호 형식이 아닙니다 (예: 010-1234-5678)"
     }
 
-    // 성별 검증
     if (!form.gender) {
       newErrors.gender = "성별을 선택해주세요"
     }
 
-    // 생년월일 검증
     if (!form.birth) {
       newErrors.birth = "생년월일을 입력해주세요"
     }
@@ -143,7 +133,6 @@ export default function SignupPage() {
         return
       }
 
-      // 회원가입 성공 시 로그인 페이지로 이동
       router.push("/login?registered=true")
     } catch (error) {
       console.error("회원가입 에러:", error)
@@ -158,7 +147,6 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-background">
       <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
-        {/* 뒤로가기 링크 */}
         <div className="mb-6 w-full max-w-md">
           <Link
             href="/"
@@ -184,14 +172,13 @@ export default function SignupPage() {
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-              {/* 일반 에러 메시지 */}
+
               {errors.general && (
                 <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
                   <p className="text-sm text-destructive">{errors.general}</p>
                 </div>
               )}
 
-              {/* 이메일 */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="email">이메일</Label>
                 <Input
@@ -207,7 +194,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* 비밀번호 */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="password">비밀번호</Label>
                 <div className="relative">
@@ -232,7 +218,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* 비밀번호 확인 */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="passwordConfirm">비밀번호 확인</Label>
                 <div className="relative">
@@ -257,7 +242,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* 이름 */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="name">이름</Label>
                 <Input
@@ -273,7 +257,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* 전화번호 */}
               <div className="flex flex-col gap-2">
                 <Label htmlFor="phoneNumber">전화번호</Label>
                 <Input
@@ -290,7 +273,6 @@ export default function SignupPage() {
                 )}
               </div>
 
-              {/* 성별 & 생년월일 */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="gender">성별</Label>
@@ -326,43 +308,10 @@ export default function SignupPage() {
                 </div>
               </div>
 
-              {/* 회원 유형 */}
-              <div className="flex flex-col gap-2">
-                <Label>회원 유형</Label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, role: "PARTICIPANT" })}
-                    className={`flex items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-                      form.role === "PARTICIPANT"
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border text-muted-foreground hover:border-primary/50"
-                    }`}
-                  >
-                    {form.role === "PARTICIPANT" && <Check className="h-4 w-4" />}
-                    참가자
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setForm({ ...form, role: "ORGANIZER" })}
-                    className={`flex items-center justify-center gap-2 rounded-lg border-2 p-3 text-sm font-medium transition-colors ${
-                      form.role === "ORGANIZER"
-                        ? "border-primary bg-primary/10 text-primary"
-                        : "border-border text-muted-foreground hover:border-primary/50"
-                    }`}
-                  >
-                    {form.role === "ORGANIZER" && <Check className="h-4 w-4" />}
-                    주최자
-                  </button>
-                </div>
-              </div>
-
-              {/* 가입 버튼 */}
               <Button type="submit" className="mt-2 w-full" disabled={isLoading}>
                 {isLoading ? "가입 중..." : "회원가입"}
               </Button>
 
-              {/* 로그인 링크 */}
               <p className="text-center text-sm text-muted-foreground">
                 이미 계정이 있으신가요?{" "}
                 <Link href="/login" className="font-medium text-primary hover:underline">
