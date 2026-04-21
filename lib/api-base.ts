@@ -43,7 +43,7 @@ export async function fetchWithAuth(
 
   let response = await fetch(fullUrl, defaultOptions)
 
-  if (response.status === 401 || response.status === 403) {
+  if (response.status === 401) {
     console.warn("Access Token 만료 → 재발급 시도")
 
     const reissued = await reissueToken()
