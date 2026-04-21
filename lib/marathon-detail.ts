@@ -10,9 +10,11 @@ export type MarathonStatusApi =
 
 export interface CourseItemRes {
   id?: number
-  distance?: string
+  courseType?: string
   price?: number
-  maxParticipants?: number
+  capacity?: number
+  currentCount?: number
+  remainingCount?: number
 }
 
 export interface MarathonDetailRes {
