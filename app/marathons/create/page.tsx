@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { API_BASE_URL } from "@/lib/api-base"
+import { fetchWithAuth } from "@/lib/api-base"
 import { ArrowLeft, Plus, X, Calendar, MapPin, Users, Trophy } from "lucide-react"
 
 type Region = "SEOUL" | "GYEONGGI" | "INCHEON" | "BUSAN" | "DAEGU" | "DAEJEON" | "GWANGJU" | "ULSAN" | "SEJONG" | "GANGWON" | "CHUNGBUK" | "CHUNGNAM" | "JEONBUK" | "JEONNAM" | "GYEONGBUK" | "GYEONGNAM" | "JEJU"
@@ -171,7 +171,7 @@ export default function CreateMarathonPage() {
   
     try {
   
-      const response = await fetch(`${API_BASE_URL}/api/v1/marathons`, {
+      const response = await fetchWithAuth("/api/v1/marathons", {
   
         method: "POST",
   
@@ -180,8 +180,6 @@ export default function CreateMarathonPage() {
           "Content-Type": "application/json",
   
         },
-  
-        credentials: "include",
   
         body: JSON.stringify({
   
