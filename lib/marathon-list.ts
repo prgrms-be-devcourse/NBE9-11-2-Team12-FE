@@ -14,6 +14,18 @@ export interface MarathonListItem {
   }[]
 }
 
+export interface PageInfo {
+  page: number
+  size: number
+  totalElements: number
+  totalPages: number
+}
+
+export interface MarathonListResponse {
+  content: MarathonListItem[]
+  pageInfo: PageInfo
+}
+
 interface ApiEnvelope<T> {
   code: string
   message?: string
@@ -28,11 +40,17 @@ function isApiEnvelope(v: unknown): v is ApiEnvelope<unknown> {
   )
 }
 
-export async function fetchMarathonList(): Promise<MarathonListItem[]> {
-  const res = await fetch(`${API_BASE_URL}/api/v1/marathons`, {
-    credentials: "include",
-    cache: "no-store",
-  })
+export async function fetchMarathonList(
+  page: number = 0,
+  size: number = 12
+): Promise<MarathonListResponse> {
+  const res = await fetch(
+    `${API_BASE_URL}/api/v1/marathons?page=${page}&size=${size}`,
+    {
+      credentials: "include",
+      cache: "no-store",
+    }
+  )
 
   const json: any = await res.json().catch(() => ({}))
 
@@ -41,12 +59,25 @@ export async function fetchMarathonList(): Promise<MarathonListItem[]> {
   }
 
   if (json.code === "SUCCESS") {
-    const content = json.data?.content ?? []
-    return content.map((m: any) => ({
+    const content = (json.data?.content ?? []).map((m: any) => ({
       ...m,
       courses: m.courses ?? [],
     }))
+
+    const pageInfo: PageInfo = json.data?.pageRes ?? {
+      page: 0,
+      size,
+      totalElements: content.length,
+      totalPages: 1,
+    }
+
+    console.log("[MarathonList] pageInfo:", pageInfo)
+
+    return { content, pageInfo }
   }
 
-  return []
+  return {
+    content: [],
+    pageInfo: { page: 0, size, totalElements: 0, totalPages: 0 },
+  }
 }
