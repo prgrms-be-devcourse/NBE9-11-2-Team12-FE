@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
+import { fetchWithAuth } from "@/lib/api-base"
 import { MapPin, Shirt, FileText, AlertCircle } from "lucide-react"
 
 type KakaoPostcodeData = {
@@ -156,12 +157,11 @@ export function RegistrationForm({ courseId, courseName, marathonTitle }: Regist
         agreedTerms: form.agreedTerms,
       }
 
-      const response = await fetch("http://localhost:8080/api/v1/registrations", {
+      const response = await fetchWithAuth("/api/v1/registrations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        credentials: "include",
         body: JSON.stringify(body),
       })
 

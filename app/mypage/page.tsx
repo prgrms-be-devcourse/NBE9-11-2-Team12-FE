@@ -17,7 +17,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { API_BASE_URL } from "@/lib/api-base"
+import { fetchWithAuth } from "@/lib/api-base"
 
 /** GET /api/v1/users/me — 컨트롤러가 직접 반환하거나 ApiResponse로 감쌀 수 있음 */
 interface MyProfileRes {
@@ -104,9 +104,8 @@ export default function MyPage() {
     setError(null)
     setLoading(true)
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/users/me`, {
+      const res = await fetchWithAuth("/api/v1/users/me", {
         method: "GET",
-        credentials: "include",
       })
 
       if (res.status === 401) {
@@ -172,9 +171,8 @@ export default function MyPage() {
     setSaving(true)
     setError(null)
     try {
-      const res = await fetch(`${API_BASE_URL}/api/v1/users/me`, {
+      const res = await fetchWithAuth("/api/v1/users/me", {
         method: "PATCH",
-        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           name: trimmedName,
