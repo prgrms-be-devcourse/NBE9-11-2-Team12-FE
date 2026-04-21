@@ -11,7 +11,9 @@ import { Separator } from '@/components/ui/separator'
 interface RegistrationData {
   registrationId: number
   marathonId: number
+  marathonTitle: string
   courseId: number
+  courseType: string
   status: string
   appliedAt: string
 }
@@ -20,7 +22,6 @@ export default function CompletePage() {
   const params = useParams()
   const router = useRouter()
   const marathonId = parseInt(params.id as string)
-  const courseId = parseInt(params.courseId as string)
 
   const [registration, setRegistration] = useState<RegistrationData | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -119,12 +120,12 @@ export default function CompletePage() {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-muted-foreground mb-1">대회 ID</p>
-                <p className="font-medium text-foreground">{registration.marathonId}</p>
+                <p className="text-sm text-muted-foreground mb-1">마라톤명</p>
+                <p className="font-medium text-foreground">{registration.marathonTitle}</p>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground mb-1">코스 ID</p>
-                <p className="font-medium text-foreground">{registration.courseId}</p>
+                <p className="text-sm text-muted-foreground mb-1">코스 타입</p>
+                <p className="font-medium text-foreground">{registration.courseType}</p>
               </div>
             </div>
 
@@ -181,7 +182,7 @@ export default function CompletePage() {
             variant="outline"
             className="flex-1"
             onClick={() => {
-              const content = `접수 번호: #${registration.registrationId}\n상태: ${statusBadge.label}\n접수 일시: ${formatDate(registration.appliedAt)}`
+              const content = `접수 번호: #${registration.registrationId}\n마라톤명: ${registration.marathonTitle}\n코스 타입: ${registration.courseType}\n상태: ${statusBadge.label}\n접수 일시: ${formatDate(registration.appliedAt)}`
               navigator.clipboard.writeText(content)
             }}
           >

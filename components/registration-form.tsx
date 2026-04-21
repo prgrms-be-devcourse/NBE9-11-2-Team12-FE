@@ -107,7 +107,9 @@ export function RegistrationForm({ courseId, courseName, marathonTitle }: Regist
       const registrationData = {
         registrationId: data.data.registrationId,
         marathonId: data.data.marathonId,
+        marathonTitle: data.data.marathonTitle,
         courseId: data.data.courseId,
+        courseType: data.data.courseType,
         status: data.data.status,
         appliedAt: data.data.appliedAt,
       }
