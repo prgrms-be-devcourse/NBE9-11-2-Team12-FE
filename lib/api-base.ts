@@ -3,7 +3,7 @@ export const API_BASE_URL = "http://localhost:8080"
 // 토큰 재발급 함수
 async function reissueToken(): Promise<boolean> {
   try {
-    const response = await fetch(`${API_BASE_URL}/auth/reissue`, {
+    const response = await fetch(`${API_BASE_URL}/api/v1/auth/reissue`, {
       method: "POST",
       credentials: "include", // 쿠키 포함
     })
@@ -26,14 +26,19 @@ export async function fetchWithAuth(
   options: RequestInit = {}
 ): Promise<Response> {
   const fullUrl = url.startsWith("http") ? url : `${API_BASE_URL}${url}`
+  const headers = new Headers(options.headers)
+  const isFormDataRequest = options.body instanceof FormData
+
+  if (isFormDataRequest) {
+    headers.delete("Content-Type")
+  } else if (!headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json")
+  }
 
   const defaultOptions: RequestInit = {
     ...options,
     credentials: "include", // 쿠키 자동 포함
-    headers: {
-      "Content-Type": "application/json",
-      ...(options.headers || {}),
-    },
+    headers,
   }
 
   let response = await fetch(fullUrl, defaultOptions)
