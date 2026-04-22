@@ -127,7 +127,7 @@ async function updateMarathon(
   formData: FormData
 ): Promise<{ success: boolean; message: string }> {
   const res = await fetchWithAuth(`/api/v1/marathons/${id}`, {
-    method: "PUT",
+    method: "PATCH",
     body: formData,
   })
 
@@ -247,7 +247,16 @@ export default function EditMarathonPage() {
       setRegistrationStartAt(toDateTimeLocalValue(data.registrationStartAt))
       setRegistrationEndAt(toDateTimeLocalValue(data.registrationEndAt))
       setExistingPosterUrl(data.posterImageUrl)
-      setCourses(data.courses.length > 0 ? data.courses : [{ courseType: "", price: 0, capacity: 0 }])
+      setCourses(
+        data.courses.length > 0
+          ? data.courses.map((course) => ({
+              id: course.id,
+              courseType: course.courseType ?? "",
+              price: course.price ?? 0,
+              capacity: course.capacity ?? 0,
+            }))
+          : [{ courseType: "", price: 0, capacity: 0 }]
+      )
     } catch (e) {
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.")
     } finally {
@@ -303,8 +312,8 @@ export default function EditMarathonPage() {
       formData.append("region", region)
       formData.append("detailedAddress", detailedAddress)
       formData.append("eventDate", eventDate)
-      formData.append("registrationStartAt", toISOString(registrationStartAt))
-      formData.append("registrationEndAt", toISOString(registrationEndAt))
+      formData.append("registrationStartAt", `${registrationStartAt}:00`)
+      formData.append("registrationEndAt", `${registrationEndAt}:00`)
 
       if (posterFile) {
         formData.append("posterImage", posterFile)
@@ -325,7 +334,7 @@ export default function EditMarathonPage() {
       if (result.success) {
         setSuccessMessage(result.message)
         setTimeout(() => {
-          router.push("/myMarathons")
+          router.push("/marathons/myMarathons")
         }, 1500)
       } else {
         setError(result.message)
@@ -638,15 +647,6 @@ export default function EditMarathonPage() {
                         대회에서 제공하는 코스를 설정해 주세요.
                       </CardDescription>
                     </div>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addCourse}
-                    >
-                      <Plus className="mr-2 h-4 w-4" />
-                      코스 추가
-                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -701,7 +701,7 @@ export default function EditMarathonPage() {
                         <div className="space-y-2">
                           <Label htmlFor={`course-type-${index}`}>코스 타입 *</Label>
                           <Select
-                            value={course.courseType}
+                            value={course.courseType ?? ""}
                             onValueChange={(value) => updateCourse(index, "courseType", value)}
                           >
                             <SelectTrigger id={`course-type-${index}`} className="w-full">
@@ -722,7 +722,7 @@ export default function EditMarathonPage() {
                             id={`course-price-${index}`}
                             type="number"
                             min="0"
-                            value={course.price}
+                            value={course.price ?? ""}
                             onChange={(e) => updateCourse(index, "price", e.target.value)}
                             placeholder="10000"
                             required
@@ -734,7 +734,7 @@ export default function EditMarathonPage() {
                             id={`course-capacity-${index}`}
                             type="number"
                             min="1"
-                            value={course.capacity}
+                            value={course.capacity ?? ""}
                             onChange={(e) => updateCourse(index, "capacity", e.target.value)}
                             placeholder="100"
                             required
@@ -751,7 +751,7 @@ export default function EditMarathonPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push("/myMarathons")}
+                  onClick={() => router.push("/marathons/myMarathons")}
                   disabled={isSaving}
                 >
                   취소
