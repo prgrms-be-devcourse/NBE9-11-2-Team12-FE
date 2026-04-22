@@ -46,33 +46,7 @@ export function HeroBanner() {
             </Button>
           </div>
 
-          {/* 통계 */}
-          <div className="mt-12 grid grid-cols-3 gap-6 sm:gap-12">
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-primary-foreground sm:text-3xl md:text-4xl">
-                150+
-              </span>
-              <span className="mt-1 text-xs text-primary-foreground/70 sm:text-sm">
-                등록된 대회
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-primary-foreground sm:text-3xl md:text-4xl">
-                50만+
-              </span>
-              <span className="mt-1 text-xs text-primary-foreground/70 sm:text-sm">
-                참가 신청자
-              </span>
-            </div>
-            <div className="flex flex-col items-center">
-              <span className="text-2xl font-bold text-primary-foreground sm:text-3xl md:text-4xl">
-                17개
-              </span>
-              <span className="mt-1 text-xs text-primary-foreground/70 sm:text-sm">
-                전국 시도
-              </span>
-            </div>
-          </div>
+          
         </div>
       </div>
     </section>
