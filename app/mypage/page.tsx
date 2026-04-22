@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { fetchWithAuth } from "@/lib/api-base"
+import { useAuthGuard } from "@/hooks/use-auth-guard"
 
 interface MyProfileRes {
   id?: number
@@ -95,6 +96,8 @@ function syncHeaderUserName(name: string) {
 }
 
 export default function MyPage() {
+
+  const { user: guardUser, isLoading: guardLoading } = useAuthGuard(false)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -143,8 +146,18 @@ export default function MyPage() {
   }, [router])
 
   useEffect(() => {
-    void loadProfile()
-  }, [loadProfile])
+    if (!guardLoading && guardUser) {
+      void loadProfile()
+    }
+  }, [guardLoading, guardUser, loadProfile])
+
+  if (guardLoading || loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    )
+  }
 
   const validate = (): boolean => {
     const next: typeof fieldErrors = {}
