@@ -30,12 +30,12 @@ export function MarathonList() {
 
       const mapped: MarathonData[] = content.map((m) => {
         const courses = m.courses ?? []
-      
+
         const totalCapacity = courses.reduce((sum, c) => sum + c.capacity, 0)
         const totalCurrent = courses.reduce((sum, c) => sum + c.currentCount, 0)
-      
+
         const normalizedImageUrl = m.posterImageUrl || null
-      
+
         return {
           id: String(m.id),
           title: m.title,
@@ -43,8 +43,8 @@ export function MarathonList() {
           location: formatRegion(m.region),
           region: formatRegion(m.region),
           distance: courses.map((c) => c.courseType),
-          participants: m.totalCurrentCount,
-          maxParticipants: m.totalCapacity,
+          participants: totalCurrent || 0,
+          maxParticipants: totalCapacity || 0,
           status: marathonStatusToUi(m.status),
           imageUrl: normalizedImageUrl,
         }
