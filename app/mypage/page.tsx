@@ -19,7 +19,6 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { fetchWithAuth } from "@/lib/api-base"
 
-/** GET /api/v1/users/me — 컨트롤러가 직접 반환하거나 ApiResponse로 감쌀 수 있음 */
 interface MyProfileRes {
   id?: number
   email: string
@@ -73,6 +72,15 @@ function unwrapPatchResult(json: unknown): unknown {
     return json.data
   }
   return json
+}
+
+function formatRole(role: string): string {
+  const roleMap: Record<string, string> = {
+    ORGANIZER: "주최자",
+    PARTICIPANT: "참가자",
+    ADMIN: "관리자",
+  }
+  return roleMap[role] ?? role
 }
 
 function syncHeaderUserName(name: string) {
@@ -272,7 +280,7 @@ export default function MyPage() {
                         {profile.role && (
                           <div className="space-y-1">
                             <Label className="text-muted-foreground">역할</Label>
-                            <p className="text-sm font-medium">{profile.role}</p>
+                            <p className="text-sm font-medium">{formatRole(profile.role)}</p>
                           </div>
                         )}
                         {profile.gender && (

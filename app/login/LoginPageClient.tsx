@@ -17,7 +17,7 @@ export default function LoginPageClient() {
   const [isLoading, setIsLoading] = useState(false)
   const [showRegisteredMessage, setShowRegisteredMessage] = useState(false)
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({})
-  
+
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -47,7 +47,7 @@ export default function LoginPageClient() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    
+
     if (!validateForm()) return
 
     setIsLoading(true)
@@ -69,21 +69,23 @@ export default function LoginPageClient() {
       const data = await response.json()
 
       if (!response.ok || data.code !== "SUCCESS") {
-        setErrors({ 
-          general: data.message || "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요." 
+        setErrors({
+          general: data.message || "로그인에 실패했습니다. 이메일과 비밀번호를 확인해주세요."
         })
         return
       }
 
       if (data.data) {
-        localStorage.setItem("user", JSON.stringify(data.data))                           
+        localStorage.setItem("user", JSON.stringify(data.data))
       }
 
-      router.push("/")
+      const redirect = searchParams.get("redirect") // 메인이 아닌 해당 페이지로 이동
+      router.push(redirect || "/")
+
     } catch (error) {
       console.error("로그인 에러:", error)
-      setErrors({ 
-        general: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요." 
+      setErrors({
+        general: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요."
       })
     } finally {
       setIsLoading(false)

@@ -71,8 +71,6 @@ export async function fetchMarathonList(
       totalPages: 1,
     }
 
-    console.log("[MarathonList] pageInfo:", pageInfo)
-
     return { content, pageInfo }
   }
 
