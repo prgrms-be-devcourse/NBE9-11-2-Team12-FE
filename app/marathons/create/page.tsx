@@ -313,12 +313,9 @@ export default function CreateMarathonPage() {
     setErrors({})
 
     try {
-
       const response = await fetchWithAuth("/api/v1/marathons", {
         method: "POST",
-
-        body: requestFormData,
-
+        body: buildFormData(),
       })
 
       const data: unknown = await response.json().catch(() => ({}))
