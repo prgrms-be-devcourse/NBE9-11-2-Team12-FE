@@ -5,14 +5,14 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
-    remotePatterns: [
+  },
+  async rewrites() {
+    return [
       {
-        protocol: "http",
-        hostname: "localhost",
-        port: "8080",
-        pathname: "/images/**",
+        source: "/uploads/:path*",
+        destination: "http://localhost:8080/uploads/:path*",
       },
-    ],
+    ]
   },
 }
 
