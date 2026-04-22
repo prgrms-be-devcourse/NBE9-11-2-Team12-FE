@@ -751,7 +751,7 @@ export default function EditMarathonPage() {
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push("/myMarathons")}
+                  onClick={() => router.push("/marathons/myMarathons")}
                   disabled={isSaving}
                 >
                   취소
