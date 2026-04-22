@@ -11,6 +11,7 @@ import {
   Loader2,
   MapPin,
   Users,
+  X,
 } from "lucide-react"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -23,6 +24,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  DialogClose,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import {
   type MarathonDetailRes,
   fetchMarathonDetail,
@@ -138,29 +148,71 @@ export default function MarathonDetailPage() {
           {!loading && detail && (
             <div className="flex flex-col gap-8">
               <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-                <div className="relative aspect-[21/9] min-h-[200px] w-full bg-secondary">
-                  {detail.posterImageUrl ? (
-                    <Image
-                      src={detail.posterImageUrl}
-                      alt={detail.title}
-                      fill
-                      className="object-contain"
-                      sizes="(max-width: 896px) 100vw, 896px"
-                      priority
-                    />
-                  ) : (
+                {detail.posterImageUrl ? (
+                  <Dialog>
+                    <DialogTrigger asChild>
+                      <button
+                        type="button"
+                        className="group relative block aspect-[21/9] min-h-[200px] w-full cursor-zoom-in bg-secondary"
+                        aria-label="포스터 크게 보기"
+                      >
+                        <Image
+                          src={detail.posterImageUrl}
+                          alt={detail.title}
+                          fill
+                          className="object-contain"
+                          sizes="(max-width: 896px) 100vw, 896px"
+                          priority
+                        />
+                        <Badge
+                          className={`pointer-events-none absolute right-4 top-4 ${statusBadgeClass[uiStatus]}`}
+                        >
+                          {uiStatus}
+                        </Badge>
+                      </button>
+                    </DialogTrigger>
+                    <DialogContent
+                      showCloseButton={false}
+                      className="w-auto max-w-none border-none bg-transparent p-0 shadow-none"
+                    >
+                      <DialogHeader className="sr-only">
+                        <DialogTitle>{detail.title} 포스터 확대 보기</DialogTitle>
+                        <DialogDescription>
+                          대회 포스터 이미지를 크게 확인합니다.
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="relative inline-flex items-start justify-center">
+                        <DialogClose asChild>
+                          <button
+                            type="button"
+                            className="absolute right-3 top-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-black/55 text-white/90 backdrop-blur-sm transition hover:bg-black/70 hover:text-white focus:outline-none focus:ring-2 focus:ring-white/70"
+                            aria-label="포스터 확대 보기 닫기"
+                          >
+                            <X className="h-4 w-4" />
+                          </button>
+                        </DialogClose>
+                        <img
+                          src={detail.posterImageUrl}
+                          alt={detail.title}
+                          className="block max-h-[88vh] max-w-[92vw] rounded-2xl border border-white/10 bg-neutral-950 object-contain shadow-[0_24px_80px_rgba(0,0,0,0.55)]"
+                        />
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                ) : (
+                  <div className="relative aspect-[21/9] min-h-[200px] w-full bg-secondary">
                     <div className="flex h-full min-h-[200px] items-center justify-center bg-primary/10">
                       <span className="text-4xl font-bold text-primary/30">
                         {detail.courses[0]?.courseType ?? "MARATHON"}
                       </span>
                     </div>
-                  )}
-                  <Badge
-                    className={`absolute right-4 top-4 ${statusBadgeClass[uiStatus]}`}
-                  >
-                    {uiStatus}
-                  </Badge>
-                </div>
+                    <Badge
+                      className={`absolute right-4 top-4 ${statusBadgeClass[uiStatus]}`}
+                    >
+                      {uiStatus}
+                    </Badge>
+                  </div>
+                )}
                 <div className="p-6 sm:p-8">
                   <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
                     {detail.title}

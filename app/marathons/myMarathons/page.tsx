@@ -101,31 +101,31 @@ export default function MyMarathonsPage() {
   const checkAuth = useCallback(async () => {
     try {
       const res = await fetchWithAuth("/api/v1/users/me", { method: "GET" })
-  
+
       if (res.status === 401) {
         setAuthStatus("unauthenticated")
         return
       }
-  
+
       if (!res.ok) {
         setAuthStatus("unauthenticated")
         return
       }
-  
+
       const json: unknown = await res.json()
       let role: string | undefined
-  
+
       if (isApiEnvelope(json) && json.data) {
         role = (json.data as { role?: string }).role
       } else if (typeof json === "object" && json !== null && "role" in json) {
         role = (json as { role?: string }).role
       }
-  
+
       if (role !== "ORGANIZER" && role !== "ADMIN") {
         setAuthStatus("unauthorized")
         return
       }
-  
+
       setAuthStatus("authenticated")
     } catch {
       setAuthStatus("unauthenticated")
@@ -168,7 +168,7 @@ export default function MyMarathonsPage() {
             ? `http://localhost:8080${marathon.posterImageUrl}`
             : marathon.posterImageUrl,
       }))
-      
+
       setMarathons(normalizedData)
     } catch (e) {
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.")
@@ -406,6 +406,14 @@ export default function MyMarathonsPage() {
                       >
                         {marathonStatusToUi(marathon.status)}
                       </Badge>
+                      <Link
+                        href={`/organizer/marathons/${marathon.id}/registrations`}
+                        className="absolute right-3 top-10 mt-1"
+                      >
+                        <Badge className="bg-white/90 text-foreground hover:bg-white cursor-pointer shadow-sm">
+                          접수 현황
+                        </Badge>
+                      </Link>
                     </div>
                   </CardHeader>
                   <CardContent className="p-4">

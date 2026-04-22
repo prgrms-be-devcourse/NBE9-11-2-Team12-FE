@@ -1,9 +1,9 @@
-import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Calendar, MapPin, Users } from "lucide-react"
+import Image from "next/image"
 
 export interface MarathonData {
   id: string
@@ -24,9 +24,9 @@ interface MarathonCardProps {
 
 export function MarathonCard({ marathon }: MarathonCardProps) {
   const statusColor = {
-    접수중: "bg-primary text-primary-foreground",
-    접수예정: "bg-accent text-accent-foreground",
-    접수마감: "bg-muted text-muted-foreground",
+    "접수중": "bg-primary text-primary-foreground",
+    "접수예정": "bg-accent text-accent-foreground",
+    "접수마감": "bg-muted text-muted-foreground",
   }
 
   const remainingSpots = marathon.maxParticipants - marathon.participants
@@ -34,32 +34,32 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
 
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-lg">
-      <CardHeader className="relative p-0">
-        <div className="relative h-40 overflow-hidden bg-secondary">
-          {marathon.imageUrl ? (
-            <Image
-              src={marathon.imageUrl}
-              alt={marathon.title}
-              fill
-              unoptimized
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-primary/10">
-              <span className="text-4xl font-bold text-primary/30">
-                {marathon.distance[0] ?? "RUN"}
-              </span>
-            </div>
-          )}
+     <CardHeader className="relative p-0">
+  <div className="relative h-40 overflow-hidden bg-secondary">
+  {marathon.imageUrl ? (
+  <Image
+    src={marathon.imageUrl}
+    alt={marathon.title}
+    fill
+    unoptimized
+    className="object-cover transition-transform duration-300 group-hover:scale-105"
+    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+  />
+) : (
+  <div className="absolute inset-0 flex items-center justify-center bg-primary/10">
+    <span className="text-4xl font-bold text-primary/30">
+      {marathon.distance[0] ?? "RUN"}
+    </span>
+  </div>
+)}
 
-          <Badge
-            className={`absolute right-3 top-3 ${statusColor[marathon.status]}`}
-          >
-            {marathon.status}
-          </Badge>
-        </div>
-      </CardHeader>
+    <Badge
+      className={`absolute right-3 top-3 ${statusColor[marathon.status]}`}
+    >
+      {marathon.status}
+    </Badge>
+  </div>
+</CardHeader>
 
       <CardContent className="p-4">
         <div className="mb-2 flex flex-wrap gap-1">
@@ -99,7 +99,6 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
           </div>
         </div>
       </CardContent>
-
       <CardFooter className="p-4 pt-0">
         {marathon.status === "접수마감" ? (
           <Button className="w-full" disabled variant="secondary">
