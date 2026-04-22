@@ -1,18 +1,61 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Header } from "@/components/header"
+import { Footer } from "@/components/footer"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { fetchWithAuth } from "@/lib/api-base"
-import { ArrowLeft, Plus, X, Calendar, MapPin, Users, Trophy } from "lucide-react"
+import {
+  ArrowLeft,
+  Plus,
+  X,
+  Calendar,
+  MapPin,
+  Users,
+  Trophy,
+  Loader2,
+} from "lucide-react"
 
-type Region = "SEOUL" | "GYEONGGI" | "INCHEON" | "BUSAN" | "DAEGU" | "DAEJEON" | "GWANGJU" | "ULSAN" | "SEJONG" | "GANGWON" | "CHUNGBUK" | "CHUNGNAM" | "JEONBUK" | "JEONNAM" | "GYEONGBUK" | "GYEONGNAM" | "JEJU"
+type Region =
+  | "SEOUL"
+  | "GYEONGGI"
+  | "INCHEON"
+  | "BUSAN"
+  | "DAEGU"
+  | "DAEJEON"
+  | "GWANGJU"
+  | "ULSAN"
+  | "SEJONG"
+  | "GANGWON"
+  | "CHUNGBUK"
+  | "CHUNGNAM"
+  | "JEONBUK"
+  | "JEONNAM"
+  | "GYEONGBUK"
+  | "GYEONGNAM"
+  | "JEJU"
+
+type AuthStatus = "loading" | "authenticated" | "unauthenticated" | "unauthorized"
 
 interface CourseType {
   distance: string
@@ -24,11 +67,26 @@ interface MarathonForm {
   title: string
   description: string
   region: Region | ""
-  address: string
+  detailedAddress: string
   marathonDate: string
   registrationStart: string
   registrationEnd: string
   courses: CourseType[]
+}
+
+interface ApiEnvelope<T> {
+  code: string
+  message?: string
+  data?: T
+}
+
+function isApiEnvelope(v: unknown): v is ApiEnvelope<unknown> {
+  return (
+    typeof v === "object" &&
+    v !== null &&
+    "code" in v &&
+    typeof (v as ApiEnvelope<unknown>).code === "string"
+  )
 }
 
 const REGIONS: { value: Region; label: string }[] = [
@@ -46,6 +104,7 @@ const REGIONS: { value: Region; label: string }[] = [
   { value: "CHUNGNAM", label: "충남" },
   { value: "JEONBUK", label: "전북" },
   { value: "JEONNAM", label: "전남" },
+  { value: "GYEONGGBUK", label: "경북" } as never, // 오타 방지용 아래 실제 값 사용
   { value: "GYEONGBUK", label: "경북" },
   { value: "GYEONGNAM", label: "경남" },
   { value: "JEJU", label: "제주" },
@@ -60,6 +119,8 @@ const COURSE_DISTANCES = [
 
 export default function CreateMarathonPage() {
   const router = useRouter()
+
+  const [authStatus, setAuthStatus] = useState<AuthStatus>("loading")
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
 
@@ -67,35 +128,73 @@ export default function CreateMarathonPage() {
     title: "",
     description: "",
     region: "",
-    address: "",
+    detailedAddress: "",
     marathonDate: "",
     registrationStart: "",
     registrationEnd: "",
     courses: [{ distance: "", price: 0, maxParticipants: 0 }],
   })
 
+  const checkAuth = useCallback(async () => {
+    try {
+      const userStr = localStorage.getItem("user")
+
+      if (!userStr) {
+        setAuthStatus("unauthenticated")
+        return
+      }
+
+      const user = JSON.parse(userStr) as { role?: string }
+
+      if (user.role !== "ORGANIZER") {
+        setAuthStatus("unauthorized")
+        return
+      }
+
+      setAuthStatus("authenticated")
+    } catch {
+      setAuthStatus("unauthenticated")
+    }
+  }, [])
+
+  useEffect(() => {
+    checkAuth()
+  }, [checkAuth])
+
+  useEffect(() => {
+    if (authStatus === "unauthenticated") {
+      router.replace("/login?redirect=/marathons/create")
+    }
+  }, [authStatus, router])
+
   const addCourse = () => {
     if (form.courses.length < 4) {
-      setForm({
-        ...form,
-        courses: [...form.courses, { distance: "", price: 0, maxParticipants: 0 }],
-      })
+      setForm((prev) => ({
+        ...prev,
+        courses: [...prev.courses, { distance: "", price: 0, maxParticipants: 0 }],
+      }))
     }
   }
 
   const removeCourse = (index: number) => {
     if (form.courses.length > 1) {
-      setForm({
-        ...form,
-        courses: form.courses.filter((_, i) => i !== index),
-      })
+      setForm((prev) => ({
+        ...prev,
+        courses: prev.courses.filter((_, i) => i !== index),
+      }))
     }
   }
 
-  const updateCourse = (index: number, field: keyof CourseType, value: string | number) => {
-    const updatedCourses = [...form.courses]
-    updatedCourses[index] = { ...updatedCourses[index], [field]: value }
-    setForm({ ...form, courses: updatedCourses })
+  const updateCourse = (
+    index: number,
+    field: keyof CourseType,
+    value: string | number
+  ) => {
+    setForm((prev) => {
+      const updatedCourses = [...prev.courses]
+      updatedCourses[index] = { ...updatedCourses[index], [field]: value }
+      return { ...prev, courses: updatedCourses }
+    })
   }
 
   const validateForm = (): boolean => {
@@ -113,8 +212,8 @@ export default function CreateMarathonPage() {
       newErrors.region = "지역을 선택해주세요"
     }
 
-    if (!form.address.trim()) {
-      newErrors.address = "상세 주소를 입력해주세요"
+    if (!form.detailedAddress.trim()) {
+      newErrors.detailedAddress = "상세 주소를 입력해주세요"
     }
 
     if (!form.marathonDate) {
@@ -129,7 +228,6 @@ export default function CreateMarathonPage() {
       newErrors.registrationEnd = "접수 마감일을 선택해주세요"
     }
 
-    // 날짜 검증
     if (form.registrationStart && form.registrationEnd) {
       if (new Date(form.registrationStart) >= new Date(form.registrationEnd)) {
         newErrors.registrationEnd = "접수 마감일은 시작일 이후여야 합니다"
@@ -142,7 +240,6 @@ export default function CreateMarathonPage() {
       }
     }
 
-    // 코스 검증
     form.courses.forEach((course, index) => {
       if (!course.distance) {
         newErrors[`course_${index}_distance`] = "코스 거리를 선택해주세요"
@@ -160,95 +257,131 @@ export default function CreateMarathonPage() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-
     e.preventDefault()
-  
+
     if (!validateForm()) return
-  
+
     setIsLoading(true)
-  
     setErrors({})
-  
+
     try {
-  
       const response = await fetchWithAuth("/api/v1/marathons", {
-  
         method: "POST",
-  
         headers: {
-  
           "Content-Type": "application/json",
-  
         },
-  
         body: JSON.stringify({
-  
           title: form.title,
-  
+          description: form.description,
           region: form.region,
-          
-          detailedAddress: form.address,
-          
+          detailedAddress: form.detailedAddress,
           eventDate: form.marathonDate,
-  
           posterImageUrl: null,
-  
           registrationStartAt: `${form.registrationStart}T00:00:00`,
-  
           registrationEndAt: `${form.registrationEnd}T23:59:59`,
-  
           courses: form.courses.map((course) => ({
-  
             courseType: course.distance,
-  
             price: course.price,
-  
             capacity: course.maxParticipants,
-  
           })),
-  
         }),
-  
       })
-  
-      const data = await response.json()
-  
-      if (!response.ok || data.code !== "SUCCESS") {
-  
-        setErrors({
-  
-          general: data.message || "대회 등록에 실패했습니다. 다시 시도해주세요.",
-  
-        })
-  
+
+      const data: unknown = await response.json().catch(() => ({}))
+
+      if (!response.ok) {
+        const message =
+          isApiEnvelope(data) && data.message
+            ? data.message
+            : "대회 등록에 실패했습니다. 다시 시도해주세요."
+
+        setErrors({ general: message })
         return
-  
       }
-  
+
+      if (isApiEnvelope(data) && data.code !== "SUCCESS") {
+        setErrors({
+          general: data.message || "대회 등록에 실패했습니다. 다시 시도해주세요.",
+        })
+        return
+      }
+
       router.push("/marathons")
-  
     } catch (error) {
-  
       console.error("대회 등록 에러:", error)
-  
       setErrors({
-  
         general: "서버에 연결할 수 없습니다. 잠시 후 다시 시도해주세요.",
-  
       })
-  
     } finally {
-  
       setIsLoading(false)
-  
     }
-  
+  }
+
+  if (authStatus === "loading") {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <Header />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>인증 확인 중...</span>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (authStatus === "unauthenticated") {
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <Header />
+        <main className="flex flex-1 items-center justify-center">
+          <div className="flex items-center gap-2 text-muted-foreground">
+            <Loader2 className="h-5 w-5 animate-spin" />
+            <span>로그인 페이지로 이동 중...</span>
+          </div>
+        </main>
+        <Footer />
+      </div>
+    )
+  }
+
+  if (authStatus === "unauthorized") {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <main className="mx-auto flex min-h-[70vh] max-w-3xl items-center justify-center px-4 py-8">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-2xl">접근 권한 없음</CardTitle>
+              <CardDescription>
+                주최자만 접근할 수 있는 페이지입니다.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                마라톤 대회 등록은 주최자 계정만 사용할 수 있습니다.
+              </p>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full">
+                <Link href="/">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  홈으로 돌아가기
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        </main>
+        <Footer />
+      </div>
+    )
   }
 
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-3xl px-4 py-8">
-        {/* 뒤로가기 링크 */}
         <div className="mb-6">
           <Link
             href="/"
@@ -271,23 +404,21 @@ export default function CreateMarathonPage() {
               </div>
             </div>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
-              {/* 일반 에러 메시지 */}
               {errors.general && (
                 <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3">
                   <p className="text-sm text-destructive">{errors.general}</p>
                 </div>
               )}
 
-              {/* 기본 정보 섹션 */}
               <div className="flex flex-col gap-4">
                 <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                   <Trophy className="h-5 w-5 text-primary" />
                   기본 정보
                 </h3>
 
-                {/* 대회명 */}
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="title">대회명</Label>
                   <Input
@@ -303,7 +434,6 @@ export default function CreateMarathonPage() {
                   )}
                 </div>
 
-                {/* 대회 설명 */}
                 <div className="flex flex-col gap-2">
                   <Label htmlFor="description">대회 설명</Label>
                   <Textarea
@@ -319,7 +449,6 @@ export default function CreateMarathonPage() {
                 </div>
               </div>
 
-              {/* 장소 정보 섹션 */}
               <div className="flex flex-col gap-4">
                 <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                   <MapPin className="h-5 w-5 text-primary" />
@@ -327,18 +456,19 @@ export default function CreateMarathonPage() {
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-2">
-                  {/* 지역 */}
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="region">지역</Label>
                     <Select
                       value={form.region}
-                      onValueChange={(value: Region) => setForm({ ...form, region: value })}
+                      onValueChange={(value: Region) =>
+                        setForm({ ...form, region: value })
+                      }
                     >
                       <SelectTrigger className={errors.region ? "border-destructive" : ""}>
                         <SelectValue placeholder="지역 선택" />
                       </SelectTrigger>
                       <SelectContent>
-                        {REGIONS.map((region) => (
+                        {REGIONS.filter((region) => region.value !== ("GYEONGGBUK" as never)).map((region) => (
                           <SelectItem key={region.value} value={region.value}>
                             {region.label}
                           </SelectItem>
@@ -350,25 +480,25 @@ export default function CreateMarathonPage() {
                     )}
                   </div>
 
-                  {/* 상세 주소 */}
                   <div className="flex flex-col gap-2">
-                    <Label htmlFor="address">상세 주소</Label>
+                    <Label htmlFor="detailedAddress">상세 주소</Label>
                     <Input
-                      id="address"
+                      id="detailedAddress"
                       type="text"
                       placeholder="예: 여의도 한강공원"
-                      value={form.address}
-                      onChange={(e) => setForm({ ...form, address: e.target.value })}
-                      className={errors.address ? "border-destructive" : ""}
+                      value={form.detailedAddress}
+                      onChange={(e) =>
+                        setForm({ ...form, detailedAddress: e.target.value })
+                      }
+                      className={errors.detailedAddress ? "border-destructive" : ""}
                     />
-                    {errors.address && (
-                      <p className="text-sm text-destructive">{errors.address}</p>
+                    {errors.detailedAddress && (
+                      <p className="text-sm text-destructive">{errors.detailedAddress}</p>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* 일정 정보 섹션 */}
               <div className="flex flex-col gap-4">
                 <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
                   <Calendar className="h-5 w-5 text-primary" />
@@ -376,14 +506,15 @@ export default function CreateMarathonPage() {
                 </h3>
 
                 <div className="grid gap-4 sm:grid-cols-3">
-                  {/* 접수 시작일 */}
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="registrationStart">접수 시작일</Label>
                     <Input
                       id="registrationStart"
                       type="date"
                       value={form.registrationStart}
-                      onChange={(e) => setForm({ ...form, registrationStart: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, registrationStart: e.target.value })
+                      }
                       className={errors.registrationStart ? "border-destructive" : ""}
                     />
                     {errors.registrationStart && (
@@ -391,14 +522,15 @@ export default function CreateMarathonPage() {
                     )}
                   </div>
 
-                  {/* 접수 마감일 */}
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="registrationEnd">접수 마감일</Label>
                     <Input
                       id="registrationEnd"
                       type="date"
                       value={form.registrationEnd}
-                      onChange={(e) => setForm({ ...form, registrationEnd: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, registrationEnd: e.target.value })
+                      }
                       className={errors.registrationEnd ? "border-destructive" : ""}
                     />
                     {errors.registrationEnd && (
@@ -406,14 +538,15 @@ export default function CreateMarathonPage() {
                     )}
                   </div>
 
-                  {/* 대회 일시 */}
                   <div className="flex flex-col gap-2">
                     <Label htmlFor="marathonDate">대회 일시</Label>
                     <Input
                       id="marathonDate"
                       type="date"
                       value={form.marathonDate}
-                      onChange={(e) => setForm({ ...form, marathonDate: e.target.value })}
+                      onChange={(e) =>
+                        setForm({ ...form, marathonDate: e.target.value })
+                      }
                       className={errors.marathonDate ? "border-destructive" : ""}
                     />
                     {errors.marathonDate && (
@@ -423,7 +556,6 @@ export default function CreateMarathonPage() {
                 </div>
               </div>
 
-              {/* 코스 정보 섹션 */}
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
@@ -431,12 +563,7 @@ export default function CreateMarathonPage() {
                     코스 정보
                   </h3>
                   {form.courses.length < 4 && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={addCourse}
-                    >
+                    <Button type="button" variant="outline" size="sm" onClick={addCourse}>
                       <Plus className="mr-1 h-4 w-4" />
                       코스 추가
                     </Button>
@@ -460,15 +587,20 @@ export default function CreateMarathonPage() {
                       )}
 
                       <div className="grid gap-4 sm:grid-cols-3">
-                        {/* 코스 거리 */}
                         <div className="flex flex-col gap-2">
                           <Label>코스 거리</Label>
                           <Select
                             value={course.distance}
-                            onValueChange={(value) => updateCourse(index, "distance", value)}
+                            onValueChange={(value) =>
+                              updateCourse(index, "distance", value)
+                            }
                           >
                             <SelectTrigger
-                              className={errors[`course_${index}_distance`] ? "border-destructive" : ""}
+                              className={
+                                errors[`course_${index}_distance`]
+                                  ? "border-destructive"
+                                  : ""
+                              }
                             >
                               <SelectValue placeholder="선택" />
                             </SelectTrigger>
@@ -487,7 +619,6 @@ export default function CreateMarathonPage() {
                           )}
                         </div>
 
-                        {/* 참가비 */}
                         <div className="flex flex-col gap-2">
                           <Label>참가비 (원)</Label>
                           <Input
@@ -497,7 +628,9 @@ export default function CreateMarathonPage() {
                             onChange={(e) =>
                               updateCourse(index, "price", parseInt(e.target.value) || 0)
                             }
-                            className={errors[`course_${index}_price`] ? "border-destructive" : ""}
+                            className={
+                              errors[`course_${index}_price`] ? "border-destructive" : ""
+                            }
                           />
                           {errors[`course_${index}_price`] && (
                             <p className="text-sm text-destructive">
@@ -506,7 +639,6 @@ export default function CreateMarathonPage() {
                           )}
                         </div>
 
-                        {/* 최대 참가자 수 */}
                         <div className="flex flex-col gap-2">
                           <Label>최대 참가자 수</Label>
                           <Input
@@ -514,10 +646,16 @@ export default function CreateMarathonPage() {
                             placeholder="500"
                             value={course.maxParticipants || ""}
                             onChange={(e) =>
-                              updateCourse(index, "maxParticipants", parseInt(e.target.value) || 0)
+                              updateCourse(
+                                index,
+                                "maxParticipants",
+                                parseInt(e.target.value) || 0
+                              )
                             }
                             className={
-                              errors[`course_${index}_maxParticipants`] ? "border-destructive" : ""
+                              errors[`course_${index}_maxParticipants`]
+                                ? "border-destructive"
+                                : ""
                             }
                           />
                           {errors[`course_${index}_maxParticipants`] && (
@@ -532,7 +670,6 @@ export default function CreateMarathonPage() {
                 </div>
               </div>
 
-              {/* 등록 버튼 */}
               <div className="flex gap-3 pt-4">
                 <Button
                   type="button"
