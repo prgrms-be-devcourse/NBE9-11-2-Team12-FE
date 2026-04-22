@@ -38,7 +38,7 @@ export function HeroBanner() {
               className="border-primary-foreground/30 bg-transparent font-semibold text-primary-foreground hover:bg-primary-foreground/10 hover:text-primary-foreground"
               asChild
             >
-              <Link href="/register">
+              <Link href="/marathons/create">
                 <Trophy className="mr-2 h-5 w-5" />
                 대회 등록하기
                 <ArrowRight className="ml-2 h-4 w-4" />
