@@ -92,6 +92,10 @@ export default function LoginPageClient() {
     }
   }
 
+  const handleGoogleLogin = () => {
+    window.location.href = `${API_BASE_URL}/oauth2/authorization/google`
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="flex min-h-screen flex-col items-center justify-center px-4 py-12">
@@ -186,6 +190,23 @@ export default function LoginPageClient() {
                 {isLoading ? "로그인 중..." : "로그인"}
               </Button>
 
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">또는</span>
+                </div>
+              </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full"
+                onClick={handleGoogleLogin}
+              >
+                Google로 로그인
+              </Button>
               <p className="text-center text-sm text-muted-foreground">
                 계정이 없으신가요?{" "}
                 <Link href="/signup" className="font-medium text-primary hover:underline">
