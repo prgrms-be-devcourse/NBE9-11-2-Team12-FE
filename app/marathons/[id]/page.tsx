@@ -144,7 +144,7 @@ export default function MarathonDetailPage() {
                       src={detail.posterImageUrl}
                       alt={detail.title}
                       fill
-                      className="object-cover"
+                      className="object-contain"
                       sizes="(max-width: 896px) 100vw, 896px"
                       priority
                     />

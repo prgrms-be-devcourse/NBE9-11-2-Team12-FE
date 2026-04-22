@@ -45,6 +45,18 @@ function isApiEnvelope(v: unknown): v is ApiEnvelope<unknown> {
   )
 }
 
+function normalizePosterImageUrl(url?: string | null): string | null | undefined {
+  if (url == null || url === "") {
+    return url
+  }
+
+  if (url.startsWith("/")) {
+    return `${API_BASE_URL}${url}`
+  }
+
+  return url
+}
+
 function unwrapMarathonDetail(json: unknown): MarathonDetailRes {
   if (isApiEnvelope(json)) {
     if (json.code !== "SUCCESS") {
@@ -53,9 +65,19 @@ function unwrapMarathonDetail(json: unknown): MarathonDetailRes {
     if (json.data === undefined || json.data === null) {
       throw new Error("응답에 마라톤 데이터가 없습니다.")
     }
-    return json.data as MarathonDetailRes
+    const raw = json.data as MarathonDetailRes
+
+    return {
+      ...raw,
+      posterImageUrl: normalizePosterImageUrl(raw.posterImageUrl),
+    }
   }
-  return json as MarathonDetailRes
+  const raw = json as MarathonDetailRes
+
+  return {
+    ...raw,
+    posterImageUrl: normalizePosterImageUrl(raw.posterImageUrl),
+  }
 }
 
 export async function fetchMarathonDetail(
