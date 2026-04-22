@@ -5,7 +5,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { User, LogOut, Menu, X } from "lucide-react"
+import { User, LogOut, Menu, X, Trophy } from "lucide-react"
 
 interface UserInfo {
   id: number
@@ -20,7 +20,6 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
-    // localStorage에서 사용자 정보 가져오기
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       setUser(JSON.parse(storedUser))
@@ -31,7 +30,7 @@ export function Header() {
     try {
       await fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
         method: "POST",
-        credentials: "include", // 쿠키 포함
+        credentials: "include",
       })
     } catch (e) {
       console.error("로그아웃 요청 실패", e)
@@ -44,6 +43,19 @@ export function Header() {
   }
 
   const isLoggedIn = !!user
+  const isOrganizerOrAdmin = user?.role === "ORGANIZER" || user?.role === "ADMIN"
+
+  const createHref = !isLoggedIn
+    ? "/login?redirect=/marathons/create"
+    : isOrganizerOrAdmin
+    ? "/marathons/create"
+    : "/marathons/create?unauthorized=true"
+
+  const myMarathonsHref = !isLoggedIn
+    ? "/login?redirect=/marathons/myMarathons"
+    : isOrganizerOrAdmin
+    ? "/marathons/myMarathons"
+    : "/marathons/create?unauthorized=true"
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -71,10 +83,16 @@ export function Header() {
             마라톤 일정
           </Link>
           <Link
-            href="/marathons/create"
+            href={createHref}
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             대회 등록
+          </Link>
+          <Link
+            href={myMarathonsHref}
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            대회 현황
           </Link>
         </nav>
 
@@ -144,11 +162,18 @@ export function Header() {
               마라톤 일정
             </Link>
             <Link
-              href="/register"
+              href={createHref}
               className="text-sm font-medium text-foreground"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               대회 등록
+            </Link>
+            <Link
+              href={myMarathonsHref}
+              className="text-sm font-medium text-foreground"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              대회 현황
             </Link>
             <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
               {isLoggedIn ? (
