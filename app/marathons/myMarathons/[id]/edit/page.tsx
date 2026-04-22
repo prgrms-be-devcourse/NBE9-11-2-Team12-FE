@@ -239,6 +239,12 @@ export default function EditMarathonPage() {
 
     try {
       const data = await fetchMarathonDetail(marathonId)
+    
+      const normalizedPosterUrl =
+
+      data.posterImageUrl && data.posterImageUrl.startsWith("/")
+        ? `http://localhost:8080${data.posterImageUrl}`
+        : data.posterImageUrl
 
       setTitle(data.title)
       setRegion(data.region)
@@ -246,7 +252,7 @@ export default function EditMarathonPage() {
       setEventDate(toDateInputValue(data.eventDate))
       setRegistrationStartAt(toDateTimeLocalValue(data.registrationStartAt))
       setRegistrationEndAt(toDateTimeLocalValue(data.registrationEndAt))
-      setExistingPosterUrl(data.posterImageUrl)
+      setExistingPosterUrl(normalizedPosterUrl)
       setCourses(
         data.courses.length > 0
           ? data.courses.map((course) => ({
@@ -586,6 +592,7 @@ export default function EditMarathonPage() {
                             src={existingPosterUrl}
                             alt="현재 포스터"
                             fill
+                            unoptimized
                             className="object-cover"
                           />
                         ) : (
