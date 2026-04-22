@@ -1,5 +1,7 @@
 "use client"
 
+import Image from "next/image"
+import { Upload, ImageIcon } from "lucide-react"
 import { useCallback, useEffect, useState } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
@@ -123,6 +125,18 @@ export default function CreateMarathonPage() {
   const [authStatus, setAuthStatus] = useState<AuthStatus>("loading")
   const [isLoading, setIsLoading] = useState(false)
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [posterFile, setPosterFile] = useState<File | null>(null)
+  const [posterPreview, setPosterPreview] = useState<string | null>(null)
+
+  const handlePosterChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setPosterFile(file)
+      const reader = new FileReader()
+      reader.onloadend = () => setPosterPreview(reader.result as string)
+      reader.readAsDataURL(file)
+    }
+  }
 
   const [form, setForm] = useState<MarathonForm>({
     title: "",
@@ -204,9 +218,9 @@ export default function CreateMarathonPage() {
       newErrors.title = "대회명을 입력해주세요"
     }
 
-    if (!form.description.trim()) {
-      newErrors.description = "대회 설명을 입력해주세요"
-    }
+    // if (!form.description.trim()) {
+    //   newErrors.description = "대회 설명을 입력해주세요"
+    // }
 
     if (!form.region) {
       newErrors.region = "지역을 선택해주세요"
@@ -265,26 +279,28 @@ export default function CreateMarathonPage() {
     setErrors({})
 
     try {
+      const formData = new FormData()
+      formData.append("title", form.title)
+      formData.append("region", form.region)
+      formData.append("detailedAddress", form.detailedAddress)
+      formData.append("eventDate", form.marathonDate)
+      formData.append("registrationStartAt", `${form.registrationStart}T00:00:00`)
+      formData.append("registrationEndAt", `${form.registrationEnd}T23:59:59`)
+
+      if (posterFile) {
+        formData.append("posterImage", posterFile)
+      }
+
+      form.courses.forEach((course, index) => {
+        formData.append(`courses[${index}].courseType`, course.distance)
+        formData.append(`courses[${index}].price`, String(course.price))
+        formData.append(`courses[${index}].capacity`, String(course.maxParticipants))
+      })
+
+
       const response = await fetchWithAuth("/api/v1/marathons", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          title: form.title,
-          description: form.description,
-          region: form.region,
-          detailedAddress: form.detailedAddress,
-          eventDate: form.marathonDate,
-          posterImageUrl: null,
-          registrationStartAt: `${form.registrationStart}T00:00:00`,
-          registrationEndAt: `${form.registrationEnd}T23:59:59`,
-          courses: form.courses.map((course) => ({
-            courseType: course.distance,
-            price: course.price,
-            capacity: course.maxParticipants,
-          })),
-        }),
+        body: formData,
       })
 
       const data: unknown = await response.json().catch(() => ({}))
@@ -294,7 +310,6 @@ export default function CreateMarathonPage() {
           isApiEnvelope(data) && data.message
             ? data.message
             : "대회 등록에 실패했습니다. 다시 시도해주세요."
-
         setErrors({ general: message })
         return
       }
@@ -434,7 +449,7 @@ export default function CreateMarathonPage() {
                   )}
                 </div>
 
-                <div className="flex flex-col gap-2">
+                {/* <div className="flex flex-col gap-2">
                   <Label htmlFor="description">대회 설명</Label>
                   <Textarea
                     id="description"
@@ -446,7 +461,55 @@ export default function CreateMarathonPage() {
                   {errors.description && (
                     <p className="text-sm text-destructive">{errors.description}</p>
                   )}
-                </div>
+                </div> */}
+              </div>
+
+              {/* 포스터 이미지 */}
+              <div className="flex flex-col gap-4">
+                <h3 className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                  <ImageIcon className="h-5 w-5 text-primary" />
+                  포스터 이미지 (선택)
+                </h3>
+                <Label
+                  htmlFor="poster"
+                  className="flex h-48 w-full cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-muted-foreground/25 bg-muted/50 transition-colors hover:border-primary/50 hover:bg-muted"
+                >
+                  {posterPreview ? (
+                    <div className="relative h-full w-full">
+                      <Image
+                        src={posterPreview}
+                        alt="포스터 미리보기"
+                        fill
+                        className="rounded-lg object-contain p-2"
+                      />
+                    </div>
+                  ) : (
+                    <>
+                      <Upload className="mb-2 h-8 w-8 text-muted-foreground" />
+                      <span className="text-sm text-muted-foreground">클릭하여 이미지 선택</span>
+                      <span className="mt-1 text-xs text-muted-foreground/70">PNG, JPG, WEBP (최대 5MB)</span>
+                    </>
+                  )}
+                </Label>
+                <Input
+                  id="poster"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handlePosterChange}
+                />
+                {posterFile && (
+                  <div className="flex items-center justify-between rounded-lg border border-border bg-muted/30 px-3 py-2">
+                    <p className="text-sm text-muted-foreground">선택된 파일: {posterFile.name}</p>
+                    <button
+                      type="button"
+                      onClick={() => { setPosterFile(null); setPosterPreview(null) }}
+                      className="rounded-full p-1 text-muted-foreground hover:bg-muted hover:text-foreground"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col gap-4">
