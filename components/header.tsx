@@ -92,7 +92,7 @@ export function Header() {
             href={myMarathonsHref}
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
-            대회 현황
+            대회 목록
           </Link>
         </nav>
 
