@@ -28,38 +28,39 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
     "접수예정": "bg-accent text-accent-foreground",
     "접수마감": "bg-muted text-muted-foreground",
   }
-
-  const remainingSpots = marathon.maxParticipants - marathon.participants
+  const participants = marathon.participants ?? 0
+  const maxParticipants = marathon.maxParticipants ?? 0
+  const remainingSpots = maxParticipants - participants
   const isFull = remainingSpots <= 0
 
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-lg">
-     <CardHeader className="relative p-0">
-  <div className="relative h-40 overflow-hidden bg-secondary">
-  {marathon.imageUrl ? (
-  <Image
-    src={marathon.imageUrl}
-    alt={marathon.title}
-    fill
-    unoptimized
-    className="object-cover transition-transform duration-300 group-hover:scale-105"
-    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-  />
-) : (
-  <div className="absolute inset-0 flex items-center justify-center bg-primary/10">
-    <span className="text-4xl font-bold text-primary/30">
-      {marathon.distance[0] ?? "RUN"}
-    </span>
-  </div>
-)}
+      <CardHeader className="relative p-0">
+        <div className="relative h-40 overflow-hidden bg-secondary">
+          {marathon.imageUrl ? (
+            <Image
+              src={marathon.imageUrl}
+              alt={marathon.title}
+              fill
+              unoptimized
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-primary/10">
+              <span className="text-4xl font-bold text-primary/30">
+                {marathon.distance[0] ?? "RUN"}
+              </span>
+            </div>
+          )}
 
-    <Badge
-      className={`absolute right-3 top-3 ${statusColor[marathon.status]}`}
-    >
-      {marathon.status}
-    </Badge>
-  </div>
-</CardHeader>
+          <Badge
+            className={`absolute right-3 top-3 ${statusColor[marathon.status]}`}
+          >
+            {marathon.status}
+          </Badge>
+        </div>
+      </CardHeader>
 
       <CardContent className="p-4">
         <div className="mb-2 flex flex-wrap gap-1">
