@@ -190,9 +190,14 @@ export default function CompletePage() {
             접수 정보 복사
           </Button>
           <Link href={`/marathons/${marathonId}`} className="flex-1">
-            <Button className="w-full">
+            <Button variant="outline" className="w-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
               대회 상세 정보 보기
+            </Button>
+          </Link>
+          <Link href="/mypage/registrations" className="flex-1">
+            <Button className="w-full">
+              내 접수 조회
             </Button>
           </Link>
         </div>

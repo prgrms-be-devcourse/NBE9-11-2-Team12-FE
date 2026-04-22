@@ -48,14 +48,14 @@ export function Header() {
   const createHref = !isLoggedIn
     ? "/login?redirect=/marathons/create"
     : isOrganizerOrAdmin
-    ? "/marathons/create"
-    : "/marathons/create?unauthorized=true"
+      ? "/marathons/create"
+      : "/marathons/create?unauthorized=true"
 
   const myMarathonsHref = !isLoggedIn
     ? "/login?redirect=/marathons/myMarathons"
     : isOrganizerOrAdmin
-    ? "/marathons/myMarathons"
-    : "/marathons/create?unauthorized=true"
+      ? "/marathons/myMarathons"
+      : "/marathons/create?unauthorized=true"
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -93,6 +93,12 @@ export function Header() {
             className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
           >
             대회 목록
+          </Link>
+          <Link
+            href="/mypage/registrations"
+            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+          >
+            내 접수 조회
           </Link>
         </nav>
 
@@ -174,6 +180,12 @@ export function Header() {
               onClick={() => setIsMobileMenuOpen(false)}
             >
               대회 현황
+            </Link>
+            <Link
+              href="/mypage/registrations"
+              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
+            >
+              내 접수 조회
             </Link>
             <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
               {isLoggedIn ? (
