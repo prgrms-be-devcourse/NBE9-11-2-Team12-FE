@@ -1,4 +1,5 @@
 export const API_BASE_URL = "http://localhost:8080"
+let reissuePromise: Promise<boolean> | null = null
 
 // 토큰 재발급 함수
 async function reissueToken(): Promise<boolean> {
@@ -46,7 +47,13 @@ export async function fetchWithAuth(
   if (response.status === 401) {
     console.warn("Access Token 만료 → 재발급 시도")
 
-    const reissued = await reissueToken()
+    if (!reissuePromise) {
+      reissuePromise = reissueToken().finally(() => {
+        reissuePromise = null
+      })
+    }
+
+    const reissued = await reissuePromise
 
     if (reissued) {
       console.log("토큰 재발급 성공 → 요청 재시도")
