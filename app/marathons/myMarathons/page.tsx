@@ -100,66 +100,35 @@ export default function MyMarathonsPage() {
   // 사용자 인증 및 권한 확인
   const checkAuth = useCallback(async () => {
     try {
-      // localStorage에서 사용자 정보 확인
-      const userStr = localStorage.getItem("user")
-      if (!userStr) {
-        setAuthStatus("unauthenticated")
-        return
-      }
-
-      const user = JSON.parse(userStr) as { role?: string }
-      
-      // API로 사용자 정보를 다시 확인 (더 신뢰할 수 있는 방법)
-      const res = await fetchWithAuth("/api/v1/users/my", { method: "GET" })
-      
+      const res = await fetchWithAuth("/api/v1/users/me", { method: "GET" })
+  
       if (res.status === 401) {
         setAuthStatus("unauthenticated")
         return
       }
-
+  
       if (!res.ok) {
-        // API 실패 시 localStorage 정보로 폴백
-        if (user.role !== "ORGANIZER") {
-          setAuthStatus("unauthorized")
-          return
-        }
-        setAuthStatus("authenticated")
+        setAuthStatus("unauthenticated")
         return
       }
-
+  
       const json: unknown = await res.json()
-      let role = user.role
-
+      let role: string | undefined
+  
       if (isApiEnvelope(json) && json.data) {
-        const profileData = json.data as { role?: string }
-        role = profileData.role
+        role = (json.data as { role?: string }).role
       } else if (typeof json === "object" && json !== null && "role" in json) {
         role = (json as { role?: string }).role
       }
-
-      if (role !== "ORGANIZER") {
+  
+      if (role !== "ORGANIZER" && role !== "ADMIN") {
         setAuthStatus("unauthorized")
         return
       }
-
+  
       setAuthStatus("authenticated")
     } catch {
-      // 오류 발생 시 localStorage 확인
-      try {
-        const userStr = localStorage.getItem("user")
-        if (!userStr) {
-          setAuthStatus("unauthenticated")
-          return
-        }
-        const user = JSON.parse(userStr) as { role?: string }
-        if (user.role !== "ORGANIZER") {
-          setAuthStatus("unauthorized")
-          return
-        }
-        setAuthStatus("authenticated")
-      } catch {
-        setAuthStatus("unauthenticated")
-      }
+      setAuthStatus("unauthenticated")
     }
   }, [])
 
