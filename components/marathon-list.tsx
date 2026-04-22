@@ -43,8 +43,8 @@ export function MarathonList() {
           location: formatRegion(m.region),
           region: formatRegion(m.region),
           distance: courses.map((c) => c.courseType),
-          participants: totalCurrent,
-          maxParticipants: totalCapacity,
+          participants: m.totalCurrentCount,
+          maxParticipants: m.totalCapacity,
           status: marathonStatusToUi(m.status),
           imageUrl: normalizedImageUrl,
         }

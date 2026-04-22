@@ -7,6 +7,8 @@ export interface MarathonListItem {
   eventDate: string
   status: string
   posterImageUrl?: string | null
+  totalCapacity: number
+  totalCurrentCount: number
   courses: {
     courseType: string
     capacity: number
