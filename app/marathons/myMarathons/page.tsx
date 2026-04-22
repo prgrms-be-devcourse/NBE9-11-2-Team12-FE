@@ -258,7 +258,7 @@ export default function MyMarathonsPage() {
 
   // 미로그인 상태 -> 로그인 페이지로 리다이렉트
   if (authStatus === "unauthenticated") {
-    router.replace("/login?redirect=/my-marathons")
+    router.replace("/login?redirect=/myMarathons")
     return (
       <div className="flex min-h-screen flex-col bg-background">
         <Header />
@@ -453,7 +453,7 @@ export default function MyMarathonsPage() {
                   </CardContent>
                   <CardFooter className="gap-2 p-4 pt-0">
                     <Button variant="outline" className="flex-1" asChild>
-                      <Link href={`/my-marathons/${marathon.id}/edit`}>
+                      <Link href={`/marathons/myMarathons/${marathon.id}/edit`}>
                         <Pencil className="mr-2 h-4 w-4" />
                         수정
                       </Link>

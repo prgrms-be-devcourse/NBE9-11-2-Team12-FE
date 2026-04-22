@@ -186,7 +186,9 @@ export default function CreateMarathonPage() {
           title: form.title,
   
           region: form.region,
-  
+          
+          detailedAddress: form.address,
+          
           eventDate: form.marathonDate,
   
           posterImageUrl: null,
