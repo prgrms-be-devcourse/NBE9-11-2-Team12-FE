@@ -16,6 +16,13 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { fetchWithAuth } from "@/lib/api-base"
 import { useAuthGuard } from "@/hooks/use-auth-guard"
@@ -96,7 +103,7 @@ function syncHeaderUserName(name: string) {
 }
 
 export default function MyPage() {
-
+  // 프로필 미완성 상태여도 마이페이지 접근 가능
   const { user: guardUser, isLoading: guardLoading } = useAuthGuard(false)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
@@ -104,6 +111,8 @@ export default function MyPage() {
   const [profile, setProfile] = useState<MyProfileRes | null>(null)
   const [name, setName] = useState("")
   const [phoneNumber, setPhoneNumber] = useState("")
+  const [gender, setGender] = useState<string>("")
+  const [birth, setBirth] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [success, setSuccess] = useState<string | null>(null)
   const [fieldErrors, setFieldErrors] = useState<{
@@ -137,6 +146,8 @@ export default function MyPage() {
       setProfile(data)
       setName(data.name ?? "")
       setPhoneNumber(data.phoneNumber ?? "")
+      setGender(data.gender ?? "")
+      setBirth(data.birth ?? "")
     } catch (e) {
       setProfile(null)
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.")
@@ -198,6 +209,8 @@ export default function MyPage() {
         body: JSON.stringify({
           name: trimmedName,
           phoneNumber: trimmedPhone,
+          gender: gender || null,
+          birth: birth || null,
         }),
       })
 
@@ -254,7 +267,7 @@ export default function MyPage() {
                 <div>
                   <CardTitle className="text-2xl">마이페이지</CardTitle>
                   <CardDescription>
-                    내 정보 조회 및 이름·전화번호를 수정할 수 있습니다.
+                    내 정보를 관리하고 프로필을 완성해주세요.
                   </CardDescription>
                 </div>
               </div>
@@ -351,6 +364,31 @@ export default function MyPage() {
                           {fieldErrors.phoneNumber}
                         </p>
                       )}
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="gender">성별</Label>
+                        <Select value={gender} onValueChange={setGender}>
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="성별을 선택해주세요" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="MALE">남성</SelectItem>
+                            <SelectItem value="FEMALE">여성</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="birth">생년월일</Label>
+                        <Input
+                          id="birth"
+                          type="date"
+                          value={birth}
+                          onChange={(e) => setBirth(e.target.value)}
+                          autoComplete="bday"
+                        />
+                      </div>
                     </div>
                   </div>
 
