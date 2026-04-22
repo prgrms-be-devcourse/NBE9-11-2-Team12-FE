@@ -161,7 +161,15 @@ export default function MyMarathonsPage() {
         data = json as OrganizerMarathon[]
       }
 
-      setMarathons(data)
+      const normalizedData = data.map((marathon) => ({
+        ...marathon,
+        posterImageUrl:
+          marathon.posterImageUrl && marathon.posterImageUrl.startsWith("/")
+            ? `http://localhost:8080${marathon.posterImageUrl}`
+            : marathon.posterImageUrl,
+      }))
+      
+      setMarathons(normalizedData)
     } catch (e) {
       setError(e instanceof Error ? e.message : "알 수 없는 오류가 발생했습니다.")
     } finally {
@@ -383,6 +391,7 @@ export default function MyMarathonsPage() {
                           src={marathon.posterImageUrl}
                           alt={marathon.title}
                           fill
+                          unoptimized
                           className="object-cover transition-transform group-hover:scale-105"
                         />
                       ) : (
