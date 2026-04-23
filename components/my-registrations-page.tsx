@@ -16,6 +16,17 @@ import {
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchMyRegistrations, MyRegistrationItem, PageRes, cancelMyRegistration } from "@/lib/registration-query"
 import { cn } from "@/lib/utils"
@@ -215,28 +226,51 @@ function RegistrationCard({
           </div>
 
           {isActive ? (
-            <Button
-              variant="outline"
-              className={cn("rounded-lg px-6 transition-all duration-200", "hover:bg-red-100 hover:text-red-700 hover:border-red-300")}
-              disabled={isCancelling || item.registrationId === null}
-              onClick={() => {
-                if (item.registrationId === null) return
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "rounded-lg px-6 transition-all duration-200",
+                    "hover:bg-red-100 hover:text-red-700 hover:border-red-300"
+                  )}
+                  disabled={isCancelling || item.registrationId === null}
+                >
+                  {isCancelling ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      취소 중
+                    </>
+                  ) : (
+                    "취소하기"
+                  )}
+                </Button>
+              </AlertDialogTrigger>
 
-                const confirmed = window.confirm("해당 접수를 취소하시겠습니까?")
-                if (!confirmed) return
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>접수 취소</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    정말 &quot;{item.marathonTitle ?? "선택한 대회"}&quot; 접수를 취소하시겠습니까?
+                    <br />
+                    취소 후에는 접수 완료 목록에서 사라지고 취소됨 목록에서 확인할 수 있습니다.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
 
-                onCancel(item.registrationId)
-              }}
-            >
-              {isCancelling ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  취소 중
-                </>
-              ) : (
-                "취소하기"
-              )}
-            </Button>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>닫기</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      if (item.registrationId === null) return
+                      onCancel(item.registrationId)
+                    }}
+                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                  >
+                    접수 취소
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           ) : (
             <Button variant="secondary" disabled className="rounded-lg px-6">
               취소됨
