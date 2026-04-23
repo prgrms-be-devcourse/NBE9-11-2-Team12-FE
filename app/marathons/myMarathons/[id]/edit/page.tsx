@@ -41,11 +41,12 @@ import { REGION_LABELS, COURSE_DISTANCE_LABELS } from "@/lib/marathon-labels"
 
 // Types
 interface Course {
-  id?: number
-  courseType: string
-  price: number
-  capacity: number
-}
+    id?: number
+    courseId?: number
+    courseType: string
+    price: number
+    capacity: number
+  }
 
 interface MarathonDetail {
   id: number
@@ -77,6 +78,29 @@ function isApiEnvelope(v: unknown): v is ApiEnvelope<unknown> {
 
 type AuthStatus = "loading" | "authenticated" | "unauthenticated" | "unauthorized"
 
+function normalizeCourseType(courseType?: string): string {
+    if (!courseType) return ""
+  
+    const normalized = courseType.trim().toUpperCase()
+  
+    switch (normalized) {
+      case "5K":
+      case "5KM":
+        return "5KM"
+      case "10K":
+      case "10KM":
+        return "10KM"
+      case "HALF":
+      case "HALF_MARATHON":
+        return "HALF"
+      case "FULL":
+      case "MARATHON":
+      case "FULL_MARATHON":
+        return "FULL"
+      default:
+        return normalized
+    }
+  }
 // 날짜/시간 변환 헬퍼
 function toDateInputValue(dateStr: string): string {
   if (!dateStr) return ""
@@ -256,8 +280,8 @@ export default function EditMarathonPage() {
       setCourses(
         data.courses.length > 0
           ? data.courses.map((course) => ({
-              id: course.id,
-              courseType: course.courseType ?? "",
+              id: course.id ?? course.courseId,
+              courseType: normalizeCourseType(course.courseType),
               price: course.price ?? 0,
               capacity: course.capacity ?? 0,
             }))
