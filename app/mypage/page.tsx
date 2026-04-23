@@ -104,7 +104,7 @@ function syncHeaderUserName(name: string) {
 
 export default function MyPage() {
   // 프로필 미완성 상태여도 마이페이지 접근 가능
-  const { user: guardUser, isLoading: guardLoading } = useAuthGuard(false)
+  const { user: guardUser, isLoading: guardLoading } = useAuthGuard(true, false)
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)

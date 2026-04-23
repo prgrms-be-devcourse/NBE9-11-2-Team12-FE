@@ -62,9 +62,9 @@ export async function fetchWithAuth(
     } else {
       console.error("재발급 실패 → 로그인 페이지 이동")
 
-      if (typeof window !== "undefined") {
-        window.location.href = "/login"
-      }
+      // if (typeof window !== "undefined") {
+      //   window.location.href = "/login"
+      // }
     }
   }
 
