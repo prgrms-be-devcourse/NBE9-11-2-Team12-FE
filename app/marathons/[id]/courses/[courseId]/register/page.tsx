@@ -9,7 +9,7 @@ import { useAuthGuard } from '@/hooks/use-auth-guard'
 
 export default function RegisterPage() {
   // 프로필 미완성 시 프로필 작성 페이지로 리다이렉트
-  const { user, isLoading } = useAuthGuard(true)
+  const { user, isLoading } = useAuthGuard(true, true)
   const params = useParams()
   const courseId = parseInt(params.courseId as string)
   const marathonId = parseInt(params.id as string)
