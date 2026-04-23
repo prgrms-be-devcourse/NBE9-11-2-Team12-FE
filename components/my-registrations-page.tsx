@@ -16,6 +16,17 @@ import {
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Card, CardContent } from "@/components/ui/card"
 import { fetchMyRegistrations, MyRegistrationItem, PageRes, cancelMyRegistration } from "@/lib/registration-query"
 import { cn } from "@/lib/utils"
@@ -215,28 +226,70 @@ function RegistrationCard({
           </div>
 
           {isActive ? (
-            <Button
-              variant="outline"
-              className={cn("rounded-lg px-6 transition-all duration-200", "hover:bg-red-100 hover:text-red-700 hover:border-red-300")}
-              disabled={isCancelling || item.registrationId === null}
-              onClick={() => {
-                if (item.registrationId === null) return
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "rounded-lg px-6 transition-all duration-200",
+                    "hover:bg-red-100 hover:text-red-700 hover:border-red-300"
+                  )}
+                  disabled={isCancelling || item.registrationId === null}
+                >
+                  {isCancelling ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      취소 중
+                    </>
+                  ) : (
+                    "취소하기"
+                  )}
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>접수 취소</AlertDialogTitle>
+                  <AlertDialogDescription asChild>
+                    <div className="space-y-4 text-sm text-muted-foreground">
+                      <p>
+                        정말&nbsp;
+                        <span className="font-medium text-foreground">
+                          &quot;{item.marathonTitle ?? "선택한 대회"}&quot;
+                        </span>{" "}
+                        접수를 취소하시겠습니까?
+                      </p>
 
-                const confirmed = window.confirm("해당 접수를 취소하시겠습니까?")
-                if (!confirmed) return
-
-                onCancel(item.registrationId)
-              }}
-            >
-              {isCancelling ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  취소 중
-                </>
-              ) : (
-                "취소하기"
-              )}
-            </Button>
+                      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+                        <p className="font-semibold">취소 전 필독 사항</p>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                          <li>취소가 완료되면 복구가 <b>불가능</b>합니다.</li>
+                          <li>취소 후 대회 참가를 원할 경우 <b>재접수</b>가 필요합니다.</li>
+                          <li>취소된 접수 내역은 취소 목록에서 확인할 수 있습니다.</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>닫기</AlertDialogCancel>
+                  <AlertDialogAction
+                    onClick={() => {
+                      if (item.registrationId === null) return
+                      onCancel(item.registrationId)
+                    }}
+                    className="
+                      bg-red-600 text-white border border-red-600
+                      transition-colors duration-200
+                      hover:bg-red-700 hover:border-red-700
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300
+                      disabled:opacity-50 disabled:pointer-events-none
+                    "
+                  >
+                    접수 취소
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           ) : (
             <Button variant="secondary" disabled className="rounded-lg px-6">
               취소됨
