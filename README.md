@@ -10,15 +10,16 @@
   <summary><strong>&nbsp;📖&nbsp;목차</strong></summary>
 
 1. &nbsp;&nbsp;[🔍 서비스 소개](#-서비스-소개)
-2. &nbsp;&nbsp;[💡 핵심 설계 의사결정](#-핵심-설계-의사결정)
-3. &nbsp;&nbsp;[💻 시스템 아키텍처](#-시스템-아키텍처)
-4. &nbsp;&nbsp;[🗂️ 데이터베이스](#%EF%B8%8F-database)
-5. &nbsp;&nbsp;[💡 기술 스택](#-tech-stack)
-6. &nbsp;&nbsp;[📄 API 명세서](#-api-명세서)
-7. &nbsp;&nbsp;[🎬 실행하기](#-실행하기)
+2. &nbsp;&nbsp;[📄 API 명세서](#-api-명세서)
+3. &nbsp;&nbsp;[💡 기술 스택](#-기술-스택)
+4. &nbsp;&nbsp;[🗂️ 데이터베이스](#%EF%B8%8F-데이터베이스)
+5. &nbsp;&nbsp;[💻 시스템 아키텍처](#-시스템-아키텍처)
+6. &nbsp;&nbsp;[💡 핵심 설계 의사결정](#-핵심-설계-의사결정)
+7. &nbsp;&nbsp;[🤝 깃 컨벤션](#-깃-컨벤션)
 8. &nbsp;&nbsp;[📂 프로젝트 구조](#-프로젝트-구조)
-9. &nbsp;&nbsp;[🤝 깃 컨벤션](#-깃-컨벤션)
+9. &nbsp;&nbsp;[🎬 실행하기](#-실행하기)
 10. &nbsp;&nbsp;[👨‍👩‍👧‍👧 역할 분담](#%E2%80%8D%E2%80%8D%E2%80%8D-역할-분담)
+    
 
 </details>
 <br>
@@ -68,7 +69,7 @@
 
 <br>
 
-## 💡 Tech Stack
+## 💡 기술 스택
 
 Backend | Security | Database | Deployment | Other
 |:------:|:------:|:------:|:------:|:------:|
@@ -85,7 +86,7 @@ Backend | Security | Database | Deployment | Other
 
 <br>
 
-## 🗂️ Database
+## 🗂️ 데이터베이스
 
 <!-- ERD 이미지를 여기에 추가해주세요 -->
 <img width="1842" height="967" alt="Image" src="https://github.com/user-attachments/assets/6dd78021-fc08-4cb6-bdd0-635c90140ddf" />
