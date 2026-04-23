@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { User, LogOut, Menu, X, Trophy } from "lucide-react"
 import { fetchWithAuth } from "@/lib/api-base"
 
+
 interface UserInfo {
   id: number
   email: string
@@ -75,18 +76,7 @@ export function Header() {
 
   const isLoggedIn = !!user
   const isOrganizerOrAdmin = user?.role === "ORGANIZER" || user?.role === "ADMIN"
-
-  const createHref = !isLoggedIn
-    ? "/login?redirect=/marathons/create"
-    : isOrganizerOrAdmin
-      ? "/marathons/create"
-      : "/marathons/create?unauthorized=true"
-
-  const myMarathonsHref = !isLoggedIn
-    ? "/login?redirect=/marathons/myMarathons"
-    : isOrganizerOrAdmin
-      ? "/marathons/myMarathons"
-      : "/marathons/create?unauthorized=true"
+  const isParticipant = isLoggedIn && !isOrganizerOrAdmin
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
@@ -101,36 +91,31 @@ export function Header() {
 
         {/* 데스크탑 네비게이션 */}
         <nav className="hidden items-center gap-6 md:flex">
-          <Link
-            href="/"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
+          <Link href="/" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
             홈
           </Link>
-          <Link
-            href="/marathons"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
+          <Link href="/marathons" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
             마라톤 일정
           </Link>
-          <Link
-            href={createHref}
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            대회 등록
-          </Link>
-          <Link
-            href={myMarathonsHref}
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            대회 목록
-          </Link>
-          <Link
-            href="/mypage/registrations"
-            className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-          >
-            내 접수 조회
-          </Link>
+
+          {/* 주최자/어드민 전용 */}
+          {isOrganizerOrAdmin && (
+            <>
+              <Link href="/marathons/create" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                대회 등록
+              </Link>
+              <Link href="/marathons/myMarathons" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+                대회 목록
+              </Link>
+            </>
+          )}
+
+          {/* 참가자 전용 */}
+          {isParticipant && (
+            <Link href="/mypage/registrations" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
+              내 접수 조회
+            </Link>
+          )}
         </nav>
 
         {/* 데스크탑 인증 버튼 */}
@@ -146,11 +131,7 @@ export function Header() {
                   마이페이지
                 </Link>
               </Button>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleLogout}
-              >
+              <Button variant="outline" size="sm" onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 로그아웃
               </Button>
@@ -184,40 +165,32 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="border-t border-border bg-card px-4 py-4 md:hidden">
           <nav className="flex flex-col gap-4">
-            <Link
-              href="/"
-              className="text-sm font-medium text-foreground"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
+            <Link href="/" className="text-sm font-medium text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
               홈
             </Link>
-            <Link
-              href="/marathons"
-              className="text-sm font-medium text-foreground"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
+            <Link href="/marathons" className="text-sm font-medium text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
               마라톤 일정
             </Link>
-            <Link
-              href={createHref}
-              className="text-sm font-medium text-foreground"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              대회 등록
-            </Link>
-            <Link
-              href={myMarathonsHref}
-              className="text-sm font-medium text-foreground"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              대회 현황
-            </Link>
-            <Link
-              href="/mypage/registrations"
-              className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary"
-            >
-              내 접수 조회
-            </Link>
+
+            {/* 주최자/어드민 전용 */}
+            {isOrganizerOrAdmin && (
+              <>
+                <Link href="/marathons/create" className="text-sm font-medium text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                  대회 등록
+                </Link>
+                <Link href="/marathons/myMarathons" className="text-sm font-medium text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                  대회 목록
+                </Link>
+              </>
+            )}
+
+            {/* 참가자 전용 */}
+            {isParticipant && (
+              <Link href="/mypage/registrations" className="text-sm font-medium text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                내 접수 조회
+              </Link>
+            )}
+
             <div className="mt-2 flex flex-col gap-2 border-t border-border pt-4">
               {isLoggedIn ? (
                 <>
@@ -230,12 +203,7 @@ export function Header() {
                       마이페이지
                     </Link>
                   </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleLogout}
-                    className="justify-start"
-                  >
+                  <Button variant="outline" size="sm" onClick={handleLogout} className="justify-start">
                     <LogOut className="mr-2 h-4 w-4" />
                     로그아웃
                   </Button>
