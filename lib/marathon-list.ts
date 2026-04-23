@@ -17,6 +17,8 @@ export interface MarathonListItem {
   totalCapacity: number
   totalCurrentCount: number
   recruitmentStatus: RecruitmentStatusApi
+  registrationStartAt: string
+  registrationEndAt: string
   courses: {
     courseType: string
     capacity: number

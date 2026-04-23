@@ -20,7 +20,14 @@ function getStatusLabel(status: MarathonData["status"]) {
       return "접수예정"
   }
 }
+function formatDateTime(value: string) {
+  const d = new Date(value)
+  if (Number.isNaN(d.getTime())) return value
 
+  return `${d.getMonth() + 1}.${String(d.getDate()).padStart(2, "0")} ${String(
+    d.getHours()
+  ).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`
+}
 export interface MarathonData {
   id: string
   title: string
@@ -31,6 +38,8 @@ export interface MarathonData {
   participants: number
   maxParticipants: number
   status: "OPEN" | "TEMP" | "FULL" | "CLOSED" | "CANCELED"
+  registrationStartAt: string
+  registrationEndAt: string
   imageUrl?: string | null
 }
 
@@ -99,7 +108,13 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
         <div className="flex flex-col gap-2 text-sm text-muted-foreground">
           <div className="flex items-center gap-2">
             <Calendar className="h-4 w-4 shrink-0" />
-            <span>{marathon.date}</span>
+              <span>{marathon.date}</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <span className="text-xs text-muted-foreground">
+              접수기간 {formatDateTime(marathon.registrationStartAt)} ~ {formatDateTime(marathon.registrationEndAt)}
+            </span>
           </div>
 
           <div className="flex items-center gap-2">
