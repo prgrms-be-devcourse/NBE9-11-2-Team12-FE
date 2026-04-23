@@ -1,11 +1,11 @@
 import { API_BASE_URL } from "@/lib/api-base"
 
-export type MarathonStatusApi =
-  | "REGISTRATION_OPEN"
-  | "REGISTRATION_UPCOMING"
-  | "REGISTRATION_CLOSED"
-  | "EVENT_ENDED"
-  | string
+export type RecruitmentStatusApi =
+  | "OPEN"
+  | "TEMP"
+  | "FULL"
+  | "CLOSED"
+  | "CANCELED"
 
 export interface CourseItemRes {
   id: number
@@ -24,7 +24,8 @@ export interface MarathonDetailRes {
   posterImageUrl?: string | null
   registrationStartAt: string
   registrationEndAt: string
-  status: MarathonStatusApi
+  status: string
+  recruitmentStatus: RecruitmentStatusApi
   courses: CourseItemRes[]
   createdAt: string
 }
