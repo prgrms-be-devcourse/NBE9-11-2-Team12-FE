@@ -246,17 +246,30 @@ function RegistrationCard({
                   )}
                 </Button>
               </AlertDialogTrigger>
-
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>접수 취소</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    정말 &quot;{item.marathonTitle ?? "선택한 대회"}&quot; 접수를 취소하시겠습니까?
-                    <br />
-                    취소 후에는 접수 완료 목록에서 사라지고 취소됨 목록에서 확인할 수 있습니다.
+                  <AlertDialogDescription asChild>
+                    <div className="space-y-4 text-sm text-muted-foreground">
+                      <p>
+                        정말&nbsp;
+                        <span className="font-medium text-foreground">
+                          &quot;{item.marathonTitle ?? "선택한 대회"}&quot;
+                        </span>{" "}
+                        접수를 취소하시겠습니까?
+                      </p>
+
+                      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">
+                        <p className="font-semibold">취소 전 필독 사항</p>
+                        <ul className="mt-2 list-disc space-y-1 pl-5 text-sm">
+                          <li>취소가 완료되면 복구가 <b>불가능</b>합니다.</li>
+                          <li>취소 후 대회 참가를 원할 경우 <b>재접수</b>가 필요합니다.</li>
+                          <li>취소된 접수 내역은 취소 목록에서 확인할 수 있습니다.</li>
+                        </ul>
+                      </div>
+                    </div>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
-
                 <AlertDialogFooter>
                   <AlertDialogCancel>닫기</AlertDialogCancel>
                   <AlertDialogAction
@@ -264,7 +277,13 @@ function RegistrationCard({
                       if (item.registrationId === null) return
                       onCancel(item.registrationId)
                     }}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                    className="
+                      bg-red-600 text-white border border-red-600
+                      transition-colors duration-200
+                      hover:bg-red-700 hover:border-red-700
+                      focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-300
+                      disabled:opacity-50 disabled:pointer-events-none
+                    "
                   >
                     접수 취소
                   </AlertDialogAction>
