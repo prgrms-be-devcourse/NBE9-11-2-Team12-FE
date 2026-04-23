@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Search, ChevronLeft, ChevronRight } from "lucide-react"
 import { fetchMarathonList } from "@/lib/marathon-list"
-import { marathonStatusToUi, formatRegion } from "@/lib/marathon-labels"
+import { formatRegion } from "@/lib/marathon-labels"
 
 const PAGE_SIZE = 8
 
@@ -21,7 +21,6 @@ export function MarathonList() {
   const [totalElements, setTotalElements] = useState(0)
   const [isLoading, setIsLoading] = useState(false)
 
-  const BACKEND_BASE_URL = "http://localhost:8080"
   const load = useCallback(async (page: number) => {
     setIsLoading(true)
 
@@ -30,12 +29,8 @@ export function MarathonList() {
 
       const mapped: MarathonData[] = content.map((m) => {
         const courses = m.courses ?? []
-
-        const totalCapacity = courses.reduce((sum, c) => sum + c.capacity, 0)
-        const totalCurrent = courses.reduce((sum, c) => sum + c.currentCount, 0)
-
         const normalizedImageUrl = m.posterImageUrl || null
-
+      
         return {
           id: String(m.id),
           title: m.title,
@@ -43,9 +38,9 @@ export function MarathonList() {
           location: formatRegion(m.region),
           region: formatRegion(m.region),
           distance: courses.map((c) => c.courseType),
-          participants: totalCurrent || 0,
-          maxParticipants: totalCapacity || 0,
-          status: marathonStatusToUi(m.status),
+          participants: m.totalCurrentCount ?? 0,
+          maxParticipants: m.totalCapacity ?? 0,
+          status: m.recruitmentStatus,
           imageUrl: normalizedImageUrl,
         }
       })

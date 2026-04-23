@@ -1,5 +1,12 @@
 import { API_BASE_URL } from "@/lib/api-base"
 
+export type RecruitmentStatusApi =
+
+  | "OPEN"
+  | "TEMP"
+  | "FULL"
+  | "CLOSED"
+  | "CANCELED"
 export interface MarathonListItem {
   id: number
   title: string
@@ -9,6 +16,7 @@ export interface MarathonListItem {
   posterImageUrl?: string | null
   totalCapacity: number
   totalCurrentCount: number
+  recruitmentStatus: RecruitmentStatusApi
   courses: {
     courseType: string
     capacity: number
