@@ -5,18 +5,22 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { User, LogOut, Menu, X } from "lucide-react"
+import { User, LogOut, Menu, X, Trophy } from "lucide-react"
+import { fetchWithAuth } from "@/lib/api-base"
+
 
 interface UserInfo {
   id: number
   email: string
   name: string
   role: string
+  profileCompleted: boolean // 프로필 완성 여부 추가
 }
 
 export function Header() {
   const router = useRouter()
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [isSyncing, setIsSyncing] = useState(true) // 로딩 상태 추가
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
   useEffect(() => {
@@ -24,6 +28,29 @@ export function Header() {
     if (storedUser) {
       setUser(JSON.parse(storedUser))
     }
+
+    // 백엔드와 동기화
+    const syncUser = async () => {
+      try {
+        const res = await fetchWithAuth("/api/v1/auth/me")
+        const json = await res.json()
+
+        if (res.ok && json.data) {
+          setUser(json.data)
+          localStorage.setItem("user", JSON.stringify(json.data))
+        } else {
+          // 쿠키가 만료되었거나 비로그인 상태면 클리어
+          localStorage.removeItem("user")
+          setUser(null)
+        }
+      } catch (e) {
+        console.error("User sync failed", e)
+      } finally {
+        setIsSyncing(false)
+      }
+    }
+
+    syncUser()
   }, [])
 
   const handleLogout = async () => {
@@ -40,6 +67,11 @@ export function Header() {
       setIsMobileMenuOpen(false)
       router.push("/")
     }
+  }
+
+  // 로딩중일때 아무것도 안 보여주거나 스피너 보여줘서 버튼 깜빡임 방지
+  if (isSyncing && !user) {
+    return <header className="sticky top-0 z-50 h-16 w-full border-b bg-card/95" />
   }
 
   const isLoggedIn = !!user
