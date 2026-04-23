@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
+import { useAuthGuard } from "@/hooks/use-auth-guard"
 import {
   ArrowLeft,
   Calendar,
@@ -72,6 +73,7 @@ const statusBadgeClass: Record<ReturnType<typeof marathonStatusToUi>, string> = 
 }
 
 export default function MarathonDetailPage() {
+  const { user, isLoading } = useAuthGuard(false)
   const params = useParams()
   const router = useRouter()
   const id = typeof params.id === "string" ? params.id : params.id?.[0] ?? ""

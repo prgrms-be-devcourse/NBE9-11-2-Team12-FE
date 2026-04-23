@@ -5,6 +5,22 @@ import { Button } from "@/components/ui/button"
 import { Calendar, MapPin, Users } from "lucide-react"
 import Image from "next/image"
 
+function getStatusLabel(status: MarathonData["status"]) {
+  switch (status) {
+    case "OPEN":
+      return "접수중"
+    case "TEMP":
+      return "접수예정"
+    case "FULL":
+    case "CLOSED":
+      return "접수마감"
+    case "CANCELED":
+      return "취소됨"
+    default:
+      return "접수예정"
+  }
+}
+
 export interface MarathonData {
   id: string
   title: string
@@ -14,7 +30,7 @@ export interface MarathonData {
   distance: string[]
   participants: number
   maxParticipants: number
-  status: "접수중" | "접수예정" | "접수마감"
+  status: "OPEN" | "TEMP" | "FULL" | "CLOSED" | "CANCELED"
   imageUrl?: string | null
 }
 
@@ -24,39 +40,45 @@ interface MarathonCardProps {
 
 export function MarathonCard({ marathon }: MarathonCardProps) {
   const statusColor = {
-    "접수중": "bg-primary text-primary-foreground",
-    "접수예정": "bg-accent text-accent-foreground",
-    "접수마감": "bg-muted text-muted-foreground",
+    OPEN: "bg-primary text-primary-foreground",
+    TEMP: "bg-accent text-accent-foreground",
+    FULL: "bg-muted text-muted-foreground",
+    CLOSED: "bg-muted text-muted-foreground",
+    CANCELED: "bg-destructive text-destructive-foreground",
   }
-
-  const remainingSpots = marathon.maxParticipants - marathon.participants
-  const isFull = remainingSpots <= 0
+  const participants = marathon.participants ?? 0
+  const maxParticipants = marathon.maxParticipants ?? 0
+  const remainingSpots = maxParticipants - participants
+  const isClosed =
+    marathon.status === "FULL" ||
+    marathon.status === "CLOSED" ||
+    marathon.status === "CANCELED"
 
   return (
     <Card className="group overflow-hidden transition-all hover:shadow-lg">
-     <CardHeader className="relative p-0">
-  <div className="relative h-40 overflow-hidden bg-secondary">
-  {marathon.imageUrl ? (
-  <Image
-    src={marathon.imageUrl}
-    alt={marathon.title}
-    fill
-    unoptimized
-    className="object-cover transition-transform duration-300 group-hover:scale-105"
-    sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
-  />
-) : (
-  <div className="absolute inset-0 flex items-center justify-center bg-primary/10">
-    <span className="text-4xl font-bold text-primary/30">
-      {marathon.distance[0] ?? "RUN"}
-    </span>
-  </div>
-)}
+      <CardHeader className="relative p-0">
+        <div className="relative h-40 overflow-hidden bg-secondary">
+          {marathon.imageUrl ? (
+            <Image
+              src={marathon.imageUrl}
+              alt={marathon.title}
+              fill
+              unoptimized
+              className="object-cover transition-transform duration-300 group-hover:scale-105"
+              sizes="(max-width: 640px) 100vw, (max-width: 1280px) 50vw, 25vw"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center bg-primary/10">
+              <span className="text-4xl font-bold text-primary/30">
+                {marathon.distance[0] ?? "RUN"}
+              </span>
+            </div>
+          )}
 
     <Badge
       className={`absolute right-3 top-3 ${statusColor[marathon.status]}`}
     >
-      {marathon.status}
+      {getStatusLabel(marathon.status)}
     </Badge>
   </div>
 </CardHeader>
@@ -90,7 +112,7 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
             <span>
               {marathon.participants.toLocaleString()} /{" "}
               {marathon.maxParticipants.toLocaleString()}명
-              {!isFull && (
+              {!isClosed && (
                 <span className="ml-1 text-primary">
                   (잔여 {remainingSpots.toLocaleString()}명)
                 </span>
@@ -99,23 +121,23 @@ export function MarathonCard({ marathon }: MarathonCardProps) {
           </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0">
-        {marathon.status === "접수마감" ? (
-          <Button className="w-full" disabled variant="secondary">
-            마감됨
-          </Button>
-        ) : (
-          <Button
-            className="w-full"
-            variant={marathon.status === "접수중" ? "default" : "secondary"}
-            asChild
-          >
-            <Link href={`/marathons/${marathon.id}`}>
-              {marathon.status === "접수중" ? "접수하기" : "상세보기"}
-            </Link>
-          </Button>
-        )}
-      </CardFooter>
+        <CardFooter className="p-4 pt-0">
+            {isClosed ? (
+            <Button className="w-full" disabled variant="secondary">
+              마감됨
+            </Button>
+          ) : (
+            <Button
+              className="w-full"
+              variant={marathon.status === "OPEN" ? "default" : "secondary"}
+              asChild
+            >
+              <Link href={`/marathons/${marathon.id}`}>
+                {marathon.status === "OPEN" ? "접수하기" : "상세보기"}
+              </Link>
+            </Button>
+          )}
+        </CardFooter>
     </Card>
   )
 }
