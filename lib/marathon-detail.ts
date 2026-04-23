@@ -28,6 +28,7 @@ export interface MarathonDetailRes {
   status: MarathonStatusApi
   courses: CourseItemRes[]
   createdAt: string
+  
 }
 
 interface ApiEnvelope<T> {

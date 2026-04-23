@@ -41,6 +41,8 @@ export function MarathonList() {
           participants: m.totalCurrentCount ?? 0,
           maxParticipants: m.totalCapacity ?? 0,
           status: m.recruitmentStatus,
+          registrationStartAt: m.registrationStartAt,
+          registrationEndAt: m.registrationEndAt,
           imageUrl: normalizedImageUrl,
         }
       })
